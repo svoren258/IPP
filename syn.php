@@ -8,6 +8,7 @@
 	$string = "";
 	$regexp = "";
 	$endOfLine = FALSE;
+	$arrayOfElem = array();
 
 	$help = "IPP: Projekt - úloha SYN (Zvýraznění syntaxe)";
 
@@ -102,6 +103,7 @@
 		if ($stdin == FALSE) {
 			while(!feof($myinputfile)) {
  	 			$inputContent = fgets($myinputfile);
+ 	 			echo $inputContent."\n";
  	 			endTag($inputContent);
  	 			regexpSetting($myformatfile, $inputContent);
  	 			fwrite($myoutputfile, $inputContent);
@@ -131,20 +133,29 @@
 		//spracovanie formatovacieho suboru a regularnych vyrazov//
 
 		if ($myformatfile != "") {
-			
+
 			global $string;
 			global $regexp;
 			global $endOfLine;
-			$output_array = array();
-
-			while(!feof($myformatfile)){
+			global $arrayOfElem;
+			// $output_array = array();
+			
+			#$elements = implode(" ", $arrayOfElem);
+			if ((empty($arrayOfElem) == true) and ($regexp == "")) {
+				while(!feof($myformatfile)){
+				echo "som vo while\n";
 				$tab = FALSE;
-				$arrayOfElem = array();
-				$line = fgets($myformatfile);
-				$arrayOfChars = str_split($line);
-				foreach ($arrayOfChars as $char) {
-					#echo $char."\n";
 				
+				$line = fgets($myformatfile);
+				echo $line."\n";
+				$arrayOfChars = str_split($line);
+				
+				if ($arrayOfChars[strlen($line)-1] != "\n") {
+					array_push($arrayOfChars, "\n");		
+				}
+ 					
+				foreach ($arrayOfChars as $char) {
+
  					if ($char == "\t") {
  						$tab = TRUE;
  						$regexp = $string;
@@ -157,8 +168,9 @@
  						$string = "";
  						continue;
  					}
- 					elseif ($char == " "){
+ 					elseif ($char == " "){;
  						if ($tab == FALSE) {
+ 							#echo "som v ife v ktorom nemam byt\n";
  							$string .= $char;
  						}
  						continue;
@@ -167,25 +179,42 @@
  					#echo $string."\n";
  				}
 			 
- 			echo $regexp." regexp\n";
+ 			#echo $regexp." regexp\n";
  			
  			$pattern = "/".$regexp."/";
 
- 			foreach ($arrayOfElem as $elem) {
+ 			addTag($arrayOfElem, $pattern, $inputContent);
+		}
+			}
+			else {
+				$pattern = "/".$regexp."/";
+				addTag($arrayOfElem, $pattern, $inputContent);
+			}
+			
+	}
+		else {
+			return;
+		}
+	}	
+
+
+	function addTag($arrayOfElem, $pattern, &$inputContent) {
+		$output_array = array();
+		foreach ($arrayOfElem as $elem) {
  				echo $elem."\n";
  				 switch($elem) {
  					case "bold":
  						preg_match($pattern, $inputContent, $output_array);
  						foreach($output_array as $item) {
- 							#echo $item."\n";
+
  							$inputContent = preg_replace($pattern, "<b>".$item."</b>", $inputContent);
  							#echo $inputContent."\n";
  						}
  						break;
 
  					case "italic":
- 						#echo $inputContent."\n";
- 						#echo $pattern."\n";
+ 						echo $inputContent."\n";
+ 						echo $pattern."\n";
  						preg_match($pattern, $inputContent, $output_array);
  						
  						foreach($output_array as $item) {
@@ -225,11 +254,5 @@
  					}
  				}
  			}
-		}
 	}
-	
-		else {
-			return;
-		}
-	}	
 ?>
