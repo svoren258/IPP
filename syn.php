@@ -20,7 +20,7 @@ optional parameters:
 	--br -> EOL tag on each line of output";
 
 	if ($argc > 5) {
-		fwrite(STDERR, "Wrong format of parameters!\n");
+		fwrite(STDERR, "Wrong format of arguments!\n");
 		exit(1);
 	}
 	
@@ -29,6 +29,8 @@ optional parameters:
 		exit;
 	}
 
+	wrong_args_test();
+
 	foreach (range(1, $argc) as $argnum) {
 
 		if (substr($argv[$argnum], 0, 9) == "--format=") {
@@ -36,7 +38,7 @@ optional parameters:
 			$myformatfile = fopen($format_file, "r");
 
 			if ($myformatfile == FALSE) {
-				fwrite(STDERR, "Format file doesn't exist or error by opening format file for reading.\n");
+				fwrite(STDERR, "Format file doesn't exist or error opening format file for reading.\n");
 				exit(4);
 			}
 		}
@@ -49,7 +51,7 @@ optional parameters:
 			$myinputfile = fopen($input_file, "r");
 
 			if ($myinputfile == FALSE) {
-				fwrite(STDERR, "Error by opening input file for reading.\n");
+				fwrite(STDERR, "Input file does not exist or error opening input file for reading.\n");
 				exit(2);
 			}
 			foreach (range(1, $argc) as $argnum) {
@@ -59,7 +61,7 @@ optional parameters:
 					$myoutputfile = fopen($output_file, "w");
 
 					if ($myoutputfile == FALSE) {
-						fwrite(STDERR, "Error by opening input file for writing.\n");
+						fwrite(STDERR, "Error opening input file for writing.\n");
 						exit(3);
 					}
 					inToOut($myinputfile, $myoutputfile, $myformatfile, FALSE);
@@ -85,7 +87,7 @@ optional parameters:
 				$myoutputfile = fopen($output_file, "w");
 
 				if ($myoutputfile == FALSE) {
-					fwrite(STDERR, "Output file doesn't exist or error by opening input file for writing.\n");
+					fwrite(STDERR, "Error opening input file for writing.\n");
 					exit(3);
 				}
 					
@@ -98,6 +100,25 @@ optional parameters:
 			inToOut($inputContent, $myoutputfile, $myformatfile, TRUE);
 		}			
  	}
+
+ 	function wrong_args_test() {
+ 		global $argc;
+ 		global $argv;
+ 			for($i=1; $i<$argc; ++$i) {
+ 				if ((substr($argv[$i], 0, 9) == "--format=") or
+ 				(substr($argv[$i], 0, 8) == "--input=") or
+ 				(substr($argv[$i], 0, 9) == "--output=") or
+ 				(substr($argv[$i], 0, 4) == "--br") or
+ 				(substr($argv[$i], 0, 6) == "--help")) {
+ 					continue;
+ 				}   	
+ 				else {
+ 					fwrite(STDERR, "Invalid argument '$argv[$i]'.\n");
+ 					exit(1);
+ 				}
+ 			}
+ 	}
+
 			
  	function endTag(&$inputContent) {
  		global $argc;
@@ -182,10 +203,10 @@ optional parameters:
  					
 				foreach ($arrayOfChars as $char) {
  					if ($char == "\t") {
-
+ 						if ($tab == FALSE) {
+ 							$regexp = $string;
+ 						}
  						$tab = TRUE;
- 						$regexp = $string;
-
  						$string = "";
  						continue;
  					}
@@ -203,7 +224,6 @@ optional parameters:
  					$string .= $char;
  				}
 
-			
  			regexpSettings($regexp);
  			$pattern = "/".$regexp."/";
  			$arrayOfRules[$pattern] = $arrayOfElem;	
@@ -226,6 +246,8 @@ optional parameters:
 		$output_array = array();
 		$approvedChars = array();
 		$repeat = FALSE;
+		#$format_e = FALSE;
+		$hexnum = FALSE;
 		$count = 0;
 				#hideElem($inputContent);
  				foreach ($arrayOfRules as $rule) {
@@ -238,7 +260,6 @@ optional parameters:
 		 				 switch($elem) {
 
 		 					case "bold":
-
 								preg_match_all($pattern, $inputContent, $output_array);
 			 						
 			 						foreach($output_array as $array) {
@@ -250,7 +271,6 @@ optional parameters:
 		 						break;
 
 		 					case "italic":
-
 		 						preg_match_all($pattern, $inputContent, $output_array);
 								
 			 						foreach($output_array as $array) {
@@ -274,22 +294,27 @@ optional parameters:
 
 		 					case "teletype":
 		 						preg_match_all($pattern, $inputContent, $output_array);
-								//print_r($output_array);
-								// print_r($output_array);
 			 						foreach($output_array as $array) {
 			 							removeDuplicate($array);
 			 							foreach ($array as $item) {
-			 								#echo $item."\n";
 		 									$inputContent = preg_replace("/".$item."/", "<tt>".$item."</tt>", $inputContent);
-			 								#echo $inputContent."\n";
 			 							}
 			 						}
 		 						break;
+
+		 					default:
+				 				if (!(substr($elem, 0, 5) == "size:") and !(substr($elem, 0, 6) == "color:")) {
+			 						fwrite(STDERR, "Format table error: Nonexistent parameter '$elem'.\n");
+		 							exit(4);	 						
+								}
 						}
 						//$approvedChars = [];
 		 				if (substr($elem, 0, 5) == "size:") {
 		 					$size = substr($elem, 5, strlen($elem));
-		 			
+		 					if ($size != range(1, 7)) {
+		 						fwrite(STDERR, "Format table error: Invalid size '$size'.\n");
+		 						exit(4);
+		 					}
 							preg_match_all($pattern, $inputContent, $output_array);
 								
 			 						foreach($output_array as $array) {
@@ -301,8 +326,28 @@ optional parameters:
 						}
 
 		 				elseif (substr($elem, 0, 6) == "color:") {
-		 					
 		 					$color = substr($elem, 6, strlen($elem));
+		 					echo $color."\n";
+		 					$array_clr = str_split($color);
+		 					$strlen_clr = strlen($color);
+		 					echo $strlen_clr."\n";
+		 					
+		 					for ($i=0; $i<strlen($color); ++$i) {
+		 						echo $array_clr[$i]."\n";
+		 						foreach (range('A', 'F') as $char) {
+		 							echo $char."\n";
+		 							if ($char == $array_clr[$i]) {
+		 								$hexnum = TRUE;
+		 							}
+		 						}
+		 						if (($array_clr[$i] == range(0, 9))) {
+		 							continue;
+		 						}
+		 						elseif ($hexnum == FALSE) {
+		 							fwrite(STDERR, "Format table error: Invalid color '$color'.\n");
+		 							exit(4);
+		 						}
+		 					}
 		 					preg_match_all($pattern, $inputContent, $output_array);
 								
 			 						foreach($output_array as $array) {
@@ -311,7 +356,7 @@ optional parameters:
 		 									$inputContent = preg_replace("/".$item."/", "<font color=#".$color.">".$item."</font>", $inputContent);
 			 							}
 			 						}
-		 				}	 		
+		 				} 		
 		 			}
 				}
 			}
@@ -383,6 +428,16 @@ function removeDuplicate(&$array) {
 		}
 	}		
 }
+
+// function strToHex($string){
+//     $hex = '';
+//     for ($i=0; $i<strlen($string); $i++){
+//         $ord = ord($string[$i]);
+//         $hexCode = dechex($ord);
+//         $hex .= substr('0'.$hexCode, -2);
+//     }
+//     return strToUpper($hex);
+// }
 
 // function hideElem($inputContent) {
 // 	$words = array();
