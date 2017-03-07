@@ -12,7 +12,12 @@
 	$arrayOfRules = array();
 	$arrayOfPattern = array();
 
-	$help = "IPP: Projekt - úloha SYN (Zvýraznění syntaxe)";
+	$help = "IPP: Projekt - úloha SYN (Zvýraznění syntaxe):
+optional parameters: 
+	--format=\$path_to_file -> format file 
+	--input=\$path_to_file -> input file
+	--output=\$path_to_file -> output file
+	--br -> EOL tag on each line of output";
 
 	if ($argc > 5) {
 		fwrite(STDERR, "Wrong format of parameters!\n");
@@ -70,7 +75,7 @@
 	}
 
 	if ($myinputfile == "") {
-
+		echo "Enter your input: ";
 		$inputContent = trim(fgets(STDIN));
 
 		foreach (range(1, $argc) as $argnum) {
@@ -97,7 +102,9 @@
  	function endTag(&$inputContent) {
  		global $argc;
  		global $argv;
- 	
+ 			if (empty($inputContent)){
+ 				return;
+ 			}
  			$arrayOfChars = str_split($inputContent);
  			if ($arrayOfChars[strlen($inputContent)-1] != "\n") {
 					array_push($arrayOfChars, "\n");		
@@ -220,7 +227,7 @@
 		$approvedChars = array();
 		$repeat = FALSE;
 		$count = 0;
-		
+				#hideElem($inputContent);
  				foreach ($arrayOfRules as $rule) {
  					//print_r($rule);
  					$pattern = newPattern($arrayOfRules, $count);
@@ -376,4 +383,16 @@ function removeDuplicate(&$array) {
 		}
 	}		
 }
+
+// function hideElem($inputContent) {
+// 	$words = array();
+// 	$words = explode(space(), $inputContent);
+// 	print_r($words);
+// 	exit;
+// }
+
+// function space() {
+// 	$string = 
+// 	return $string;
+// }
 ?>
