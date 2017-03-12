@@ -1,5 +1,2 @@
-a.a	bold
-bb		italic
-c|d	underline
-f*		teletype
-g+		size:2
+aa*	bold, color:000FFF
+je	italic

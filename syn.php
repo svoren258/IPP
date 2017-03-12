@@ -1,6 +1,5 @@
 #!/bin/php
 <?php
-
 	#Global variables init:
 	$myoutputfile = "";
 	$myinputfile = "";
@@ -11,14 +10,12 @@
 	$arrayOfElem = array();
 	$arrayOfRules = array();
 	$arrayOfPattern = array();
-
 	$help = "IPP: Projekt - úloha SYN (Zvýraznění syntaxe):
 optional parameters: 
 	--format=\$path_to_file -> format file 
 	--input=\$path_to_file -> input file
 	--output=\$path_to_file -> output file
 	--br -> EOL tag on each line of output";
-
 	if ($argc > 5) {
 		fwrite(STDERR, "Wrong format of arguments!\n");
 		exit(1);
@@ -28,15 +25,11 @@ optional parameters:
 		echo $help."\n";
 		exit;
 	}
-
 	wrong_args_test();
-
 	foreach (range(1, $argc) as $argnum) {
-
 		if (substr($argv[$argnum], 0, 9) == "--format=") {
 			$format_file = substr($argv[$argnum], 9, strlen($argv[$argnum]));
 			$myformatfile = fopen($format_file, "r");
-
 			if ($myformatfile == FALSE) {
 				fwrite(STDERR, "Format file doesn't exist or error opening format file for reading.\n");
 				exit(4);
@@ -45,21 +38,17 @@ optional parameters:
 	}
 	
 	foreach (range(1, $argc) as $argnum) {
-
 		if (substr($argv[$argnum], 0, 8) == "--input=") {
 			$input_file = substr($argv[$argnum], 8, strlen($argv[$argnum]));
 			$myinputfile = fopen($input_file, "r");
-
 			if ($myinputfile == FALSE) {
 				fwrite(STDERR, "Input file does not exist or error opening input file for reading.\n");
 				exit(2);
 			}
 			foreach (range(1, $argc) as $argnum) {
-
 				if (substr($argv[$argnum], 0, 9) == "--output=") {
 					$output_file = substr($argv[$argnum], 9, strlen($argv[$argnum]));
 					$myoutputfile = fopen($output_file, "w");
-
 					if ($myoutputfile == FALSE) {
 						fwrite(STDERR, "Error opening input file for writing.\n");
 						exit(3);
@@ -75,17 +64,13 @@ optional parameters:
 			}	
 		}
 	}
-
 	if ($myinputfile == "") {
 		echo "Enter your input: ";
 		$inputContent = trim(fgets(STDIN));
-
 		foreach (range(1, $argc) as $argnum) {
-
 			if (substr($argv[$argnum], 0, 9) == "--output=") {
 				$output_file = substr($argv[$argnum], 9, strlen($argv[$argnum]));
 				$myoutputfile = fopen($output_file, "w");
-
 				if ($myoutputfile == FALSE) {
 					fwrite(STDERR, "Error opening input file for writing.\n");
 					exit(3);
@@ -100,7 +85,6 @@ optional parameters:
 			inToOut($inputContent, $myoutputfile, $myformatfile, TRUE);
 		}			
  	}
-
  	function wrong_args_test() {
  		global $argc;
  		global $argv;
@@ -118,7 +102,6 @@ optional parameters:
  				}
  			}
  	}
-
 			
  	function endTag(&$inputContent) {
  		global $argc;
@@ -131,7 +114,6 @@ optional parameters:
 					array_push($arrayOfChars, "\n");		
 				}
 			$inputContent = implode($arrayOfChars);
-
  		foreach (range(1, $argc) as $argnum) {	
 			if (substr($argv[$argnum], 0, 4) == "--br") {
 		 		$inputContent = preg_replace("/\n/", "<br />\n", $inputContent);
@@ -139,12 +121,8 @@ optional parameters:
 			}
 		}
 	}
-
 	closeFiles($myinputfile, $myoutputfile, $myformatfile);
-
-
 	function inToOut($myinputfile, $myoutputfile, $myformatfile, $stdin) {
-
 		if ($stdin == FALSE) {
 			while(!feof($myinputfile)) {
  	 			$inputContent = fgets($myinputfile);
@@ -160,16 +138,12 @@ optional parameters:
  	 		fwrite($myoutputfile, $myinputfile);
 		}	
 	}
-
-
 	function closeFiles($myinputfile, $myoutputfile, $myformatfile) {
 		if ($myinputfile != "") {
 			fclose($myinputfile);	
 		} 
-
 		fwrite($myoutputfile, "\n");
 		fclose($myoutputfile);
-
 		if ($myformatfile != "") {
 			fclose($myformatfile);
 		}
@@ -177,16 +151,13 @@ optional parameters:
 	
 	function regexpSetting($myformatfile, &$inputContent) {
 		//spracovanie formatovacieho suboru a regularnych vyrazov//
-
 		if ($myformatfile != "") {
-
 			global $string;
 			global $regexp;
 			global $endOfLine;
 			global $arrayOfElem;
 			global $arrayOfRules;
 			global $arrayOfPattern;
-
 			if (empty($arrayOfRules)) {
 				while(!feof($myformatfile)){
 				$arrayOfElem = array();
@@ -195,7 +166,6 @@ optional parameters:
 				
 				$line = fgets($myformatfile);
 				$arrayOfChars = str_split($line);
-
 				
 				if ($arrayOfChars[strlen($line)-1] != "\n") {
 					array_push($arrayOfChars, "\n");		
@@ -223,7 +193,6 @@ optional parameters:
  					}
  					$string .= $char;
  				}
-
  			regexpSettings($regexp);
  			$pattern = "/".$regexp."/";
  			$arrayOfRules[$pattern] = $arrayOfElem;	
@@ -240,8 +209,6 @@ optional parameters:
 			return;
 		}
 	}	
-
-
 	function addTag($arrayOfRules, &$inputContent) {
 		$output_array = array();
 		$approvedChars = array();
@@ -258,7 +225,6 @@ optional parameters:
 		 				//echo $elem."\n";
 		 				
 		 				 switch($elem) {
-
 		 					case "bold":
 								preg_match_all($pattern, $inputContent, $output_array);
 			 						
@@ -269,7 +235,6 @@ optional parameters:
 			 							}
 			 						}
 		 						break;
-
 		 					case "italic":
 		 						preg_match_all($pattern, $inputContent, $output_array);
 								
@@ -280,7 +245,6 @@ optional parameters:
 			 							}
 			 						}
 		 						break;
-
 		 					case "underline":
 		 						preg_match_all($pattern, $inputContent, $output_array);
 								
@@ -291,7 +255,6 @@ optional parameters:
 			 							}
 			 						}
 		 						break;
-
 		 					case "teletype":
 		 						preg_match_all($pattern, $inputContent, $output_array);
 			 						foreach($output_array as $array) {
@@ -301,7 +264,6 @@ optional parameters:
 			 							}
 			 						}
 		 						break;
-
 		 					default:
 				 				if (!(substr($elem, 0, 5) == "size:") and !(substr($elem, 0, 6) == "color:")) {
 			 						fwrite(STDERR, "Format table error: Nonexistent parameter '$elem'.\n");
@@ -324,30 +286,55 @@ optional parameters:
 			 							}
 			 						}
 						}
-
 		 				elseif (substr($elem, 0, 6) == "color:") {
+		 					$hexnum = FALSE;
 		 					$color = substr($elem, 6, strlen($elem));
-		 					echo $color."\n";
+		 					//echo $color."\n";
 		 					$array_clr = str_split($color);
-		 					$strlen_clr = strlen($color);
-		 					echo $strlen_clr."\n";
+		 					//$strlen_clr = strlen($color);
+		 					//echo $strlen_clr."\n";
 		 					
-		 					for ($i=0; $i<strlen($color); ++$i) {
-		 						echo $array_clr[$i]."\n";
+		 					for ($i=0; $i<count($array_clr); $i++) {
 		 						foreach (range('A', 'F') as $char) {
-		 							echo $char."\n";
-		 							if ($char == $array_clr[$i]) {
+		 							//echo $char."\n";
+		 							if ($array_clr[$i] == $char) {
 		 								$hexnum = TRUE;
 		 							}
 		 						}
-		 						if (($array_clr[$i] == range(0, 9))) {
+		 						if ($hexnum == TRUE) {
 		 							continue;
 		 						}
-		 						elseif ($hexnum == FALSE) {
-		 							fwrite(STDERR, "Format table error: Invalid color '$color'.\n");
-		 							exit(4);
+		 						else {
+		 							foreach (range(0, 9) as $val) {
+		 								//echo $val."\n";
+		 								if ($array_clr[$i] == $val) {
+		 									$hexnum = TRUE;
+		 								}
+		 							}
+		 							if ($hexnum != TRUE) {
+		 								fwrite(STDERR, "Format table error: Invalid color '$color'.\n");
+		 								exit(4);
+		 							}
 		 						}
 		 					}
+		 					
+
+		 					// for ($i=0; $i<strlen($color); ++$i) {
+		 					// 	//echo $array_clr[$i]."\n";
+		 					// 	foreach (range('A', 'F') as $char) {
+		 					// 		echo $char."\n";
+		 					// 		if ($char === $array_clr[$i]) {
+		 					// 			$hexnum = TRUE;
+		 					// 		}
+		 					// 		else if ($array_clr[$i] == range(0, 9)) {
+
+		 					// 		}
+		 					// 	}
+		 						// if (($array_clr[$i] == range(0, 9))) {
+		 						// 	continue;
+		 						// }
+		 						
+		 					
 		 					preg_match_all($pattern, $inputContent, $output_array);
 								
 			 						foreach($output_array as $array) {
@@ -360,8 +347,6 @@ optional parameters:
 		 			}
 				}
 			}
-
-
 	function newPattern($arrayOfRules, $count) {
 		$num = 0;
 		while($array = current($arrayOfRules)){
@@ -374,7 +359,6 @@ optional parameters:
  			$num++;
  		}
 	}
-
 	function regexpSettings(&$regexp) {
 		switch ($regexp) {
 			case "%s":
@@ -384,35 +368,27 @@ optional parameters:
 			case "%a":
 				$regexp = "\S";
 				break;
-
 			case "%d":
 				$regexp = "[0-9]";
 				break;
-
 			case "%l":
 				$regexp = "[a-z]";
 				break;
-
 			case "%L":
 				$regexp = "[A-Z]";
 				break;
-
 			case "%w":
 				$regexp = "[a-zA-Z]";
 				break;
-
 			case "%W":
 				$regexp = "[a-zA-Z0-9]";
 				break;
-
 			case "%t":
 				$regexp = "\t";
 				break;
-
 			case "%n":
 				$regexp = "\n";
 				break;
-
 			default:
 				break;
 		}
@@ -429,25 +405,4 @@ function removeDuplicate(&$array) {
 	}		
 }
 
-// function strToHex($string){
-//     $hex = '';
-//     for ($i=0; $i<strlen($string); $i++){
-//         $ord = ord($string[$i]);
-//         $hexCode = dechex($ord);
-//         $hex .= substr('0'.$hexCode, -2);
-//     }
-//     return strToUpper($hex);
-// }
-
-// function hideElem($inputContent) {
-// 	$words = array();
-// 	$words = explode(space(), $inputContent);
-// 	print_r($words);
-// 	exit;
-// }
-
-// function space() {
-// 	$string = 
-// 	return $string;
-// }
 ?>
