@@ -1,0 +1,8 @@
+PHP Notice:  Undefined offset: 4 in /home/svoren258/Dokumenty/VUT/2.rocnik/Letný_semester/IPP/IPP/project1/syn-supplementary-tests/syn.php on line 30
+PHP Notice:  Undefined offset: -1 in /home/svoren258/Dokumenty/VUT/2.rocnik/Letný_semester/IPP/IPP/project1/syn-supplementary-tests/syn.php on line 170
+PHP Warning:  preg_replace(): Compilation failed: nothing to repeat at offset 0 in /home/svoren258/Dokumenty/VUT/2.rocnik/Letný_semester/IPP/IPP/project1/syn-supplementary-tests/syn.php on line 244
+PHP Warning:  preg_replace(): Compilation failed: nothing to repeat at offset 0 in /home/svoren258/Dokumenty/VUT/2.rocnik/Letný_semester/IPP/IPP/project1/syn-supplementary-tests/syn.php on line 244
+PHP Warning:  preg_replace(): Compilation failed: missing ) at offset 1 in /home/svoren258/Dokumenty/VUT/2.rocnik/Letný_semester/IPP/IPP/project1/syn-supplementary-tests/syn.php on line 244
+PHP Warning:  preg_replace(): Compilation failed: unmatched parentheses at offset 0 in /home/svoren258/Dokumenty/VUT/2.rocnik/Letný_semester/IPP/IPP/project1/syn-supplementary-tests/syn.php on line 244
+PHP Warning:  preg_replace(): Compilation failed: missing terminating ] for character class at offset 1 in /home/svoren258/Dokumenty/VUT/2.rocnik/Letný_semester/IPP/IPP/project1/syn-supplementary-tests/syn.php on line 244
+Format table error: Nonexistent parameter ''.
