@@ -164,47 +164,57 @@ optional parameters:
 			global $arrayOfElem;
 			global $arrayOfRules;
 			global $arrayOfPattern;
+
+			$comment = FALSE;
+
 			if (empty($arrayOfRules)) {
 				while(!feof($myformatfile)){
-				$arrayOfElem = array();
-				$regexp = "";
-				$tab = FALSE;
-				
-				$line = fgets($myformatfile);
-				$arrayOfChars = str_split($line);
-				
-				if ($arrayOfChars[strlen($line)-1] != "\n") {
-					array_push($arrayOfChars, "\n");		
+					$arrayOfElem = array();
+					$regexp = "";
+					$tab = FALSE;
+					
+					$line = fgets($myformatfile);
+					$arrayOfChars = str_split($line);
+					
+					if ($arrayOfChars[strlen($line)-1] != "\n") {
+						array_push($arrayOfChars, "\n");		
+					}
+	 					
+					foreach ($arrayOfChars as $char) {
+
+	 					if ($char == "\t") {
+	 						if ($tab == FALSE) {
+	 							$regexp = $string;
+	 							//echo $regexp."\n";
+	 						}
+	 						$tab = TRUE;
+	 						$string = "";
+	 						continue;
+	 					}
+	 					elseif ((($char == ",") || ($char == "\n")) && ($tab == TRUE)) {
+	 						array_push($arrayOfElem, $string);
+	 						$string = "";
+	 						continue;
+	 					}
+	 					elseif ($char == " "){;
+	 						if ($tab == FALSE) {
+	 							$string .= $char;
+	 						}
+	 						continue;
+	 					}
+	 					$string .= $char;
+	 				}
+		 			regexpSettings($regexp);
+		 			echo $regexp."\n";
+		 			//exit;
+		 			// $pattern = "/".$regexp."/";
+		 			//$pattern = $regexp;
+		 			$pattern = "/(?!<[^>]*)".$regexp."(?![^<]*>)/";
+		 			$arrayOfRules[$pattern] = $arrayOfElem;	
+		 			//print_r($arrayOfElem);
+
 				}
- 					
-				foreach ($arrayOfChars as $char) {
- 					if ($char == "\t") {
- 						if ($tab == FALSE) {
- 							$regexp = $string;
- 						}
- 						$tab = TRUE;
- 						$string = "";
- 						continue;
- 					}
- 					elseif (($char == ",") || ($char == "\n")) {
- 						array_push($arrayOfElem, $string);
- 						$string = "";
- 						continue;
- 					}
- 					elseif ($char == " "){;
- 						if ($tab == FALSE) {
- 							$string .= $char;
- 						}
- 						continue;
- 					}
- 					$string .= $char;
- 				}
- 			regexpSettings($regexp);
- 			$pattern = "/".$regexp."/";
- 			$arrayOfRules[$pattern] = $arrayOfElem;	
-		}
-		
-		addTag($arrayOfRules, $inputContent);
+				addTag($arrayOfRules, $inputContent);
 			}
 			else {
 				addTag($arrayOfRules, $inputContent);
@@ -216,6 +226,8 @@ optional parameters:
 		}
 	}	
 	function addTag($arrayOfRules, &$inputContent) {
+		//print_r($arrayOfRules);
+		//exit;
 		$output_array = array();
 		$approvedChars = array();
 		$repeat = FALSE;
@@ -229,58 +241,91 @@ optional parameters:
  					$count++;
  					foreach ($rule as $elem) {
 		 				//echo $elem."\n";
-		 				
+		 				//echo $inputContent."\n";
 		 				 switch($elem) {
 		 					case "bold":
-								preg_match_all($pattern, $inputContent, $output_array);
+		 						$inputContent = preg_replace($pattern, "<b>$0</b>", $inputContent);
+		 									 						// 		#(?!<[^>]*)Test(?![^<]*>)
+
+								// preg_match_all($pattern, $inputContent, $output_array);
 			 						
-			 						foreach($output_array as $array) {
-			 							removeDuplicate($array);
-			 							foreach ($array as $item) {
-			 								$inputContent = preg_replace("/".$item."/", "<b>".$item."</b>", $inputContent);
-			 							}
-			 						}
+			 				// 		foreach($output_array as $array) {
+			 				// 			//print_r($array);
+			 				// 			//exit;
+			 				// 			removeDuplicate($array);
+			 				// 			//print_r($array);
+			 							
+			 				// 			foreach ($array as $item) {
+			 				// 				$inputContent = preg_replace("/(?<!<)".$item."(?!>)/", "<b>".$item."</b>", $inputContent);
+			 				// 			}
+			 				// 			//echo $inputContent."\n";
+			 				// 			//exit;
+			 				// 		}
 		 						break;
 		 					case "italic":
-		 						preg_match_all($pattern, $inputContent, $output_array);
-									//print_r($output_array);
-									//exit;
-			 						foreach($output_array as $array) {
-			 							removeDuplicate($array);
-			 							//print_r($array);
-			 							//najprv aplikovat element na pismeno, ktore ho oznacuje
-			 							foreach ($array as $item) {
-		 									//echo $item."\n";
-		 									$inputContent = preg_replace("/(?<!<)".$item."(?!>)/", "<i>".$item."</i>", $inputContent);
-			 							}
-			 						}
+		 						$inputContent = preg_replace($pattern, "<i>$0</i>", $inputContent);
+		 						// preg_match_all($pattern, $inputContent, $output_array);
+									// //print_r($output_array);
+									// //exit;
+			 					// 	foreach($output_array as $array) {
+			 					// 		removeDuplicate($array);
+			 					// 		//print_r($array);
+			 					// 		//najprv aplikovat element na pismeno, ktore ho oznacuje
+			 					// 		foreach ($array as $item) {
+		 						// 			//echo $item."\n";
+		 						// 			$inputContent = preg_replace("/(?<!<)".$item."(?!>)/", "<i>".$item."</i>", $inputContent);
+			 					// 		}
+			 					// 	}
 		 						break;
 		 					case "underline":
-		 						preg_match_all($pattern, $inputContent, $output_array);
+
+		 						$inputContent = preg_replace($pattern, "<u>$0</u>", $inputContent);
+
+		 						// preg_match_all($pattern, $inputContent, $output_array);
 								
-			 						foreach($output_array as $array) {
-			 							removeDuplicate($array);
-			 							foreach ($array as $item) {
-		 									$inputContent = preg_replace("/".$item."/", "<u>".$item."</u>", $inputContent);
-			 							}
-			 						}
+			 					// 	foreach($output_array as $array) {
+			 					// 		removeDuplicate($array);
+			 					// 		//print_r($array);
+			 							
+
+			 					// 		foreach ($array as $item) {
+		 						// 			$inputContent = preg_replace("/(?<!<)".$item."(?!>)/", "<u>".$item."</u>", $inputContent);
+			 					// 		}
+			 					// 	}
 		 						break;
 		 					case "teletype":
-		 						preg_match_all($pattern, $inputContent, $output_array);
-			 						foreach($output_array as $array) {
-			 							removeDuplicate($array);
-			 							foreach ($array as $item) {
-		 									$inputContent = preg_replace("/".$item."/", "<tt>".$item."</tt>", $inputContent);
-			 							}
-			 						}
+		 						
+		 						$inputContent = preg_replace($pattern, "<tt>$0</tt>", $inputContent);
+		 						//preg_match_all($pattern, $inputContent, $output_array);
+			 						// foreach($output_array as $array) {
+			 						// 	//print_r($array);
+			 						// 	removeDuplicate($array);
+			 						// 	//print_r($array);
+			 						// 	// usort($array, function($a, $b) {
+			 						// 	// 	return strlen($b)-strlen($a);
+			 						// 	// });
+			 						// 	//print_r($array);
+			 						// 	foreach ($array as $item) {
+			 						// 		echo $item."\n";
+		 							// 		//$inputContent = preg_replace("/(?!<)".$item."(?!>)/", "<tt>".$item."</tt>", $inputContent);
+		 							// 		//$inputContent = preg_replace($pattern, "<tt>".$item."</tt>", $inputContent);
+		 									
+			 								
+			 						// 		#(?!<[^>]*)Test(?![^<]*>)
+			 						// 	}
+			 							//echo $inputContent."\n";
+			 						//}
 		 						break;
-		 					// default:
-		 					// 	echo $elem."\n";
-		 					// 	echo substr($elem, 0, 5);
-				 			// 	if ((substr($elem, 0, 5) == "size:") or (substr($elem, 0, 6) == "color:")) {
-			 				// 		fwrite(STDERR, "Format table error: Nonexistent parameter '$elem'.\n");
-		 					// 		exit(4);	 						
-								// }
+		 					default:
+		 						//echo $elem."\n";
+		 						//echo substr($elem, 0, 5);
+				 				if ((substr($elem, 0, 5) == "size:") or (substr($elem, 0, 6) == "color:") or ($elem == "")) {
+			 						break;
+			 					}
+			 					else {
+			 						fwrite(STDERR, "Format table error: Nonexistent parameter '$elem'.\n");
+		 							exit(4);	 						
+								}
 						}
 						//$approvedChars = [];
 		 				if (substr($elem, 0, 5) == "size:") {
@@ -306,14 +351,16 @@ optional parameters:
 		 						fwrite(STDERR, "Format table error: Invalid size '$size'.\n");
 		 						exit(4);
 		 					}	
-							preg_match_all($pattern, $inputContent, $output_array);
+		 					$inputContent = preg_replace($pattern, "<font size=".$size.">$0</font>", $inputContent);
+
+							// preg_match_all($pattern, $inputContent, $output_array);
 								
-			 						foreach($output_array as $array) {
-			 							removeDuplicate($array);
-			 							foreach ($array as $item) {
-		 									$inputContent = preg_replace("/".$item."/", "<font size=".$size.">".$item."</font>", $inputContent);
-			 							}
-			 						}
+			 			// 			foreach($output_array as $array) {
+			 			// 				removeDuplicate($array);
+			 			// 				foreach ($array as $item) {
+		 				// 					$inputContent = preg_replace("/(?<!<|\/)".$item."/", "<font size=".$size.">".$item."</font>", $inputContent);
+			 			// 				}
+			 			// 			}
 						}
 		 				elseif (substr($elem, 0, 6) == "color:") {
 		 					$colorok = FALSE;
@@ -329,21 +376,23 @@ optional parameters:
  								fwrite(STDERR, "Format table error: Invalid color '$color'.\n");
  								exit(4);	 						
 		 					}
-		 						
-		 					
-		 					preg_match_all($pattern, $inputContent, $output_array);
+		 					//echo $color."\n";
+		 					//echo $inputContent."\n";
+				 			$inputContent = preg_replace($pattern, "<font color=#".$color.">$0</font>", $inputContent);
+
+		 					// preg_match_all($pattern, $inputContent, $output_array);
 								
-			 						foreach($output_array as $array) {
-			 							removeDuplicate($array);
-			 							foreach ($array as $item) {
-		 									$inputContent = preg_replace("/".$item."/", "<font color=#".$color.">".$item."</font>", $inputContent);
-			 							}
-			 						}
+			 				// 		foreach($output_array as $array) {
+			 				// 			removeDuplicate($array);
+			 				// 			foreach ($array as $item) {
+		 					// 				$inputContent = preg_replace("/(?<!<)".$item."/", "<font color=#".$color.">".$item."</font>", $inputContent);
+			 				// 			}
+			 				// 		}
 		 				}
-		 				else {
-		 					fwrite(STDERR, "Format table error: Nonexistent parameter '$elem'.\n");
-		 					exit(4);
-		 				} 		
+		 				// else {
+		 				// 	fwrite(STDERR, "Format table error: Nonexistent parameter '$elem'.\n");
+		 				// 	exit(4);
+		 				// } 		
 		 			}
 				}
 			}
@@ -360,48 +409,171 @@ optional parameters:
  		}
 	}
 	function regexpSettings(&$regexp) {
-		switch ($regexp) {
-			case "%s":
-				$regexp = "\s";
-				break;
-			case "%a":
-				$regexp = "\S";
-				break;
-			case "%d":
-				$regexp = "[0-9]";
-				break;
-			case "%l":
-				$regexp = "[a-z]";
-				break;
-			case "%L":
-				$regexp = "[A-Z]";
-				break;
-			case "%w":
-				$regexp = "[a-zA-Z]";
-				break;
-			case "%W":
-				$regexp = "[a-zA-Z0-9]";
-				break;
-			case "%t":
-				$regexp = "\t";
-				break;
-			case "%n":
-				$regexp = "\n";
-				break;
-			default:
-				break;
-		}
+				$char = "";
+				$array = str_split($regexp);
+				foreach ($array as $key => $value) {
+					//echo $value."\n";
+					if ($value == ".") {
+						unset($array[$key]);
+						$regexp = implode($array);
+					}
+				}
+				//echo $regexp."\n";
+				
+				foreach ($array as $key => $value) {
+					if ($value == "*") {
+						$array[$key] = "+";
+						$regexp = implode($array);
+						//echo $regexp."\n";
+					}
+				}
+				
+				foreach ($array as $key => $value) {
+					if ($value == "!") {
+						$regexp = preg_replace("/!/", "[^", $regexp);
+						$regexp = preg_replace("/.(?=\+)/", "$0]", $regexp);
+					}
+				}
+
+				foreach ($array as $key => $value) {
+					echo $value."\n";
+					
+					if ($value == "%") {
+						if ($char == $value) {
+							unset($array[$key]);
+							$regexp = implode($array);
+							echo $regexp."\n";
+							break;
+						}
+						//echo $regexp."\n";
+					}
+					$char = $value;
+				}
+				
+			if (preg_match("/%s/", $regexp)) {
+				if (preg_match("/!%s/", $regexp)) {
+					$regexp = preg_replace("/!%s/", "[^\s]", $regexp);
+				}
+				$regexp = preg_replace("/%s/", "\s", $regexp);
+			}
+
+			if (preg_match("/%a/", $regexp)) {
+				if (preg_match("/!%a/", $regexp)) {
+					$regexp = preg_replace("/!%a/", "[^\S]", $regexp);
+				}
+				$regexp = preg_replace("/%a/", "\S", $regexp);
+			}
+
+			if (preg_match("/%d/", $regexp)) {
+				if (preg_match("/!%d/", $regexp)) {
+					$regexp = preg_replace("/!%d/", "[^0-9]", $regexp);
+				}
+				$regexp = preg_replace("/%d/", "[0-9]", $regexp);
+			}
+
+			if (preg_match("/%l/", $regexp)) {
+				if (preg_match("/!%l/", $regexp)) {
+					$regexp = preg_replace("/!%l/", "[^a-z]", $regexp);
+				}
+				$regexp = preg_replace("/%l/", "[a-z]", $regexp);
+			}
+				
+			if (preg_match("/%L/", $regexp)) {
+				if (preg_match("/!%L/", $regexp)) {
+					$regexp = preg_replace("/!%L/", "[^A-Z]", $regexp);
+				}
+				$regexp = preg_replace("/%L/", "[A-Z]", $regexp);
+			}
+				
+			if (preg_match("/%w/", $regexp)) {
+				if (preg_match("/!%w/", $regexp)) {
+					$regexp = preg_replace("/!%w/", "[^a-zA-Z]", $regexp);
+				}
+				$regexp = preg_replace("/%w/", "[a-zA-Z]", $regexp);
+			}
+			
+			if (preg_match("/%W/", $regexp)) {
+				if (preg_match("/!%W/", $regexp)) {
+					$regexp = preg_replace("/!%W/", "[^a-zA-Z0-9]", $regexp);
+				}
+				$regexp = preg_replace("/%W/", "[a-zA-Z0-9]", $regexp);
+			}
+		
+			if (preg_match("/%t/", $regexp)) {
+				if (preg_match("/!%t/", $regexp)) {
+					$regexp = preg_replace("/!%t/", "[^\t]", $regexp);
+				}
+				$regexp = preg_replace("/%t/", "\t", $regexp);
+			}
+
+			if (preg_match("/%n/", $regexp)) {
+				if (preg_match("/!%n/", $regexp)) {
+					$regexp = preg_replace("/!%s/", "[^\n]", $regexp);
+				}
+				$regexp = preg_replace("/%n/", "\n", $regexp);
+			}
+		
+		
+		
+		
+
+		// switch ($regexp) {
+		// 	case "%s":
+		// 		$regexp = "\s";
+		// 		break;
+		// 	case "%a":
+		// 		$regexp = "\S";
+		// 		break;
+		// 	case "%d":
+		// 		$regexp = "[0-9]";
+		// 		break;
+		// 	case "%l":
+		// 		$regexp = "[a-z]";
+		// 		break;
+		// 	case "%L":
+		// 		$regexp = "[A-Z]";
+		// 		break;
+		// 	case "%w":
+		// 		$regexp = "[a-zA-Z]";
+		// 		break;
+		// 	case "%W":
+		// 		$regexp = "[a-zA-Z0-9]";
+		// 		break;
+		// 	case "%t":
+		// 		$regexp = "\t";
+		// 		break;
+		// 	case "%n":
+		// 		$regexp = "\n";
+		// 		break;
+		// // 	default:
+		// 		$array = str_split($regexp);
+		// 		foreach ($array as $key => $value) {
+		// 			//echo $value."\n";
+		// 			if ($value == ".") {
+		// 				unset($array[$key]);
+		// 				$regexp = implode($array);
+		// 			}
+					
+		// 			if ($value == "*") {
+		// 				$array[$key] = "+";
+		// 				$regexp = implode($array);
+		// 				//echo $regexp."\n";
+		// 			}
+		// 		}
+		// 		//break;
+		//}
 	}
 
 function removeDuplicate(&$array) {
 	$count = count($array);
 	for ($i=0; $i < $count; $i++) {
 		for ($j=$i+1; $j < $count; $j++){
-			if ($array[$i] == $array[$j]) {
-				unset($array[$i]);
+			if (isset($array[$i]) and isset($array[$j])) {
+				if ($array[$i] == $array[$j]) {
+					unset($array[$i]);
+				}
 			}
 		}
 	}		
 }
-
 ?>
