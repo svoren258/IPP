@@ -209,7 +209,14 @@ optional parameters:
 		 			//exit;
 		 			// $pattern = "/".$regexp."/";
 		 			//$pattern = $regexp;
+		 			// $arrayOfRegex = str_split($regexp);
+		 			// array_push($arrayOfRegex, "|[^(<|>)]");
+		 			// $regexp = implode($arrayOfRegex);
+		 			// echo $regexp."\n";
+		 			//exit;
 		 			$pattern = "/(?!<[^>]*)".$regexp."(?![^<]*>)/";
+
+		 			//$pattern = "/(?!<)".$regexp."(?!>)/";
 		 			$arrayOfRules[$pattern] = $arrayOfElem;	
 		 			//print_r($arrayOfElem);
 
@@ -389,6 +396,7 @@ optional parameters:
 			 				// 			}
 			 				// 		}
 		 				}
+		 				//echo $inputContent."\n";
 		 				// else {
 		 				// 	fwrite(STDERR, "Format table error: Nonexistent parameter '$elem'.\n");
 		 				// 	exit(4);
@@ -431,7 +439,7 @@ optional parameters:
 				foreach ($array as $key => $value) {
 					if ($value == "!") {
 						$regexp = preg_replace("/!/", "[^", $regexp);
-						$regexp = preg_replace("/.(?=\+)/", "$0]", $regexp);
+						$regexp = preg_replace("/.(?=(\+|$))/", "$0|<|>]", $regexp);
 					}
 				}
 
