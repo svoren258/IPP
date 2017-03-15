@@ -231,8 +231,10 @@ optional parameters:
 		 			// $regexp = implode($arrayOfRegex);
 		 			// echo $regexp."\n";
 		 			//exit;
+
 		 			$overlapTestRegex = $regexp;
 		 			$overlapTestArray[$regexp] = $arrayOfElem;
+
 
 		 			$pattern = "/(?!<[^>]*)".$regexp."(?![^<]*>)/";
 
