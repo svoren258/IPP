@@ -287,6 +287,7 @@ optional parameters:
 			 								//echo $item."\n";
 			 								$inputContent = preg_replace("/".$item."/", "<b>".$item."</b>", $inputContent);
 			 							}
+			 							//echo $inputContent."\n";
 			 						}
 			 						if ($overlay == TRUE) {
 			 							$inputContent = saveTag($inputContent, $elem);
@@ -501,7 +502,8 @@ function saveTag($inputContent, $elem) {
 	global $endTags;
 	global $shiftnum;
 	#$input = array();
-
+	echo "save tag\n";
+	exit;
 	$input = str_split($inputContent);
 	$elem = str_split($elem);
 	
