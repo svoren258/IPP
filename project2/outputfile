@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<model>
-    <class name="A" kind="abstract">
-        <class name="B" kind="concrete">
-            <class name="D" kind="concrete">
-            </class>
-        </class>
-    </class>
-    <class name="C" kind="concrete">
-        <class name="D" kind="concrete">
-        </class>
-    </class>
-</model>
+<class name="D" kind="concrete">
+    <inheritance>
+        <from name="B" privacy="protected"/>
+        <from name="C" privacy="private"/>
+    </inheritance>
+    <protected>
+        <attributes>
+            <attribute name="var" type="int" scope="instance">
+                <from name="B"/>
+            </attribute>
+        </attributes>
+    </protected>
+</class>
