@@ -8,7 +8,6 @@ private = False
 public = False
 protected = False
 
-
 #defined_class = []
 
 class Class(object):
@@ -38,9 +37,10 @@ class Class(object):
       self.privacy = privacy
 
    def is_parent(self):
-      if (self.root == True):
-         sys.stderr.write('Conflict in inheritance!\n')
-         sys.exit(21)
+      if (self.privacy != 'private'):
+         if (self.root == True):
+            sys.stderr.write('Conflict in inheritance!\n')
+            sys.exit(21)
       self.root = True
 
 class Method(object):
@@ -80,13 +80,6 @@ class Argument(object):
       self.name = name
       self.argtype = argtype
 
-# def details_output(methorattr, privacy):
-#    methorattr_list = []
-#    for i in range(len(methorattr)):
-#       if (methorattr[i].privacy == privacy):
-#          methorattr_list.append(methorattr[i])
-         
-#    return methorattr_list
 
 def details_output(classname, methorattr, mthattr, privacy, n, k_string, stdout, outputfile):
    global private
@@ -191,25 +184,25 @@ def details_output(classname, methorattr, mthattr, privacy, n, k_string, stdout,
                if (attr.parentcls.name != classname):
                   n += 1
                   print (k_string*n + '<from name="' + attr.parentcls.name + '"/>')
+                  n -= 1
             else:
                outputfile.write(k_string*n + '<attribute name="' + attr.name + '" type="' + attr.attype + '" scope="' + attr.scope + '">\n')
                if (attr.parentcls.name != classname):
                   n += 1
                   outputfile.write(k_string*n + '<from name="' + attr.parentcls.name + '"/>\n')
+                  n -= 1
          
-            n -= 1
+            
             if(stdout == True):
                print(k_string*n + '</attribute>')
             else:
                outputfile.write(k_string*n + '</attribute>\n')
-            n -= 1
-            if (stdout == True):
-               print(k_string*n + '</attributes>')
-            else:
-               outputfile.write(k_string*n + '</attributes>\n')
+         n -= 1
+         if (stdout == True):
+            print(k_string*n + '</attributes>')
+         else:
+            outputfile.write(k_string*n + '</attributes>\n')
          
-
-
 
 def output(stdout, outputfilename, k, class_list, classname = ''):
 
@@ -302,8 +295,6 @@ def output(stdout, outputfilename, k, class_list, classname = ''):
                outputfile.write(k_string*n + '</inheritance>\n')
 
 
-
-
          details_output(classname, class_list[i].methods, 'methods', 'private', n, k_string, stdout, outputfile)
 
          details_output(classname, class_list[i].attributes, 'attributes', 'private', n, k_string, stdout, outputfile) 
@@ -334,8 +325,6 @@ def output(stdout, outputfilename, k, class_list, classname = ''):
             print (k_string*n + '</public>')
          elif (stdout == False) and (public == True):
             outputfile.write(k_string*n + '</public>\n')
-
-
 
          n = 0
          if (stdout == True):
@@ -376,7 +365,7 @@ def test_type(string):
    return False
 
 
-def definition(input_list, class1, index):
+def definition(class_list, input_list, class1, index):
    print('som v definition')
    print(input_list[index+3])
 
@@ -438,8 +427,48 @@ def definition(input_list, class1, index):
          sys.stderr.write('Wrong input file formating!\n')
          sys.exit(4)
       if (test_type(input_list[index+5]) == False):
-         sys.stderr.write('Wrong input file formating!\n')
-         sys.exit(4)
+         if (input_list[index+5] == 'virtual'):
+            if (test_type(input_list[index+6]) == False):
+               sys.stderr.write('Wrong input file formating!\n')
+            else:
+               if (input_list[index+8] == '('):
+                  for x in range(len(class1.methods)):
+                     if (class1.methods[x].name == input_list[index+7]):
+                        class1.methods.remove(class1.methods[x])
+                  method1 = Method(input_list[index+7], input_list[index+6])
+                  method1.privacy = 'public'
+                  class1.add_method(method1)
+               else:
+                  sys.stderr.write('Wrong input file formating!\n')
+                  sys.exit(4)
+               if (test_type(input_list[index+9]) != False):
+                  if (input_list[index+9] == 'void'):
+                     if (input_list[index+10] != ')'):
+                        sys.stderr.write('Wrong input file formating!\n')
+                        sys.exit(4)
+                     if (input_list[index+11] == '{'):
+                        if (input_list[index+12] != '}'):
+                           sys.stderr.write('Wrong input file formating!\n')
+                           sys.exit(4)
+                        return index+13
+                     elif (input_list[index+11] == '='):
+                        if (input_list[index+12] == '0'):
+                           method1.pure = 'yes'
+                           return index+13
+
+                  else:
+                     arg1 = Argument(input_list[index+10], input_list[index+9])
+                     method1.add_arguments(arg1)
+                     if (input_list[index+11] == ')'):
+                        if (input_list[index+12] != '{'):
+                           sys.stderr.write('Wrong input file formating!\n')
+                           sys.exit(4)
+                        if (input_list[index+13] == '}'):
+                           return index+14
+
+         else:
+            sys.stderr.write('Wrong input file formating!\n')
+            sys.exit(4)
       
       if (input_list[index+7] == ';'):
          print('pridavam attr')
@@ -491,11 +520,118 @@ def definition(input_list, class1, index):
          sys.stderr.write('Wrong input file formating!\n')
          sys.exit(4)
             
-   # elif (input_list[index+3] == 'private'):
-   #    print('private')
+   elif (input_list[index+3] == 'private'):
+      print('som v private')
+      print(input_list[index+4])
+      if (input_list[index+4] != ':'):
+         sys.stderr.write('Wrong input file formating!\n')
+         sys.exit(4)
+
+      print('presiel som')
+      if (test_type(input_list[index+5]) != False):
+         print('mam typ')
+         if (input_list[index+7] == ';'):
+            attr1 = Attribute(input_list[index+6], input_list[index+5], class1)
+            class1.add_attribute(attr1)
+            return index+7
+
+         elif (input_list[index+7] == '('):
+            method1 = Method(input_list[index+6], input_list[index+5])
+            class1.add_method(method1)
+            if (test_type(input_list[index+8]) != False):
+               if (input_list[index+8] != 'void'):
+                  arg1 = Argument(input_list[index+9], input_list[index+8])
+                  method1.add_arguments(arg1)
+               elif (input_list[index+9] == ')'):
+                  if (input_list[index+10] == '{'):
+                     if (input_list[index + 11] != '}'):
+                        sys.stderr.write('Wrong input file formating!\n')
+                        sys.exit(4)
+                        return index+12
+
+                  
+            elif (input_list[index+8] == ')'):
+               if (input_list[index+9] == '{'):
+                  if (input_list[index + 10] != '}'):
+                     sys.stderr.write('Wrong input file formating!\n')
+                     sys.exit(4)
+                  return index+11
+
+            else: 
+               sys.stderr.write('Wrong input file formating!\n')
+               sys.exit(4)
+
+      elif (input_list[index+5] == 'virtual'):
+         print('elseifvirutal')
+         print(input_list[index+6])
+         if (test_type(input_list[index+6]) != False):
+
+            if (input_list[index+8] == '('):
+               print('typ', input_list[index+6])
+               method1 = Method(input_list[index+7], input_list[index+6])
+               print(method1.mtype)
+               class1.add_method(method1)
+               if (test_type(input_list[index+9]) != False):
+                  if (input_list[index+9] != 'void'):
+                     arg1 = Argument(input_list[index+10], input_list[index+9])
+                     method1.add_arguments(arg1)
+                     
+                  elif (input_list[index+10] == ')'):
+                     if (input_list[index+11] == '{'):
+                        if (input_list[index + 12] != '}'):
+                           sys.stderr.write('Wrong input file formating!\n')
+                           sys.exit(4)
+                           return index+13
+                     elif (input_list[index+11] == '='):
+                        if (input_list[index+12] == '0'):
+                           method1.pure = 'yes'
+                           print('som pred returnom')
+                           return index+13
+
+                     
+               elif (input_list[index+9] == ')'):
+                  if (input_list[index+10] == '{'):
+                     if (input_list[index + 11] != '}'):
+                        sys.stderr.write('Wrong input file formating!\n')
+                        sys.exit(4)
+                     return index+12
+
+            else: 
+               sys.stderr.write('Wrong input file formating!\n')
+               sys.exit(4)
+
+            
    elif (input_list[index+3] == 'protected'):
       print('protected')
 
+   elif (input_list[index+3] == 'using'):
+      print('mam using')
+      if class_list:
+         print('mam class list')
+         for clss in class_list:
+            if (clss.name == input_list[index+4]):
+               print('nasiel som clss')
+
+               if (input_list[index+5] != ':'):
+                  sys.stderr.write('Wrong input file formating!\n')
+                  sys.exit(4)
+               if (input_list[index+6] != ':'):
+                  sys.stderr.write('Wrong input file formating!\n')
+                  sys.exit(4)
+               for attr in clss.attributes:
+                  if (attr.name == input_list[index+7]):
+                     for attr2 in class1.attributes:
+                        if (attr.name == attr2.name) and (attr.attype == attr2.attype):
+                           continue
+                        elif (attr.name == attr2.name):
+                           class1.attributes.remove(attr2)
+                     return index+8
+                  else:
+                     sys.stderr.write('Wrong input file formating!\n')
+                     sys.exit(4)
+                  
+                  
+ 
    # elif (input_list[index+3] == '}'):
    #    print('som v ife v def')
    #    if (input_list[index+4] != ';'):
@@ -571,12 +707,13 @@ def analysis(input_list):
                   continue
             else:
                print('som v else')
-               index = definition(input_list, class1, i)
+               index = definition(class_list, input_list, class1, i)
                while (input_list[index+1] != '}'):
-                  index = definition(input_list, class1, index+1)
+                  index = definition(class_list, input_list, class1, index+1)
 
 
          elif (input_list[i+2] == ":"):
+            print('som v else s :')
             if (input_list[i+3] == 'protected'):
                print('som v protected')
                for clss in class_list:
@@ -586,8 +723,10 @@ def analysis(input_list):
                      class1.add_parent_class(clss)
                      if (clss.kind != 'concrete'):
                         class1.kind = clss.kind
-                     # for m in clss.methods:
-                     #    class1.add_method(m)
+                     for m in clss.methods:
+                        if (m.pure != 'yes'):
+                           m.privacy = 'protected'
+                           class1.add_method(m)
                      for a in clss.attributes:
                         a.privacy = 'protected'
                         print(a.name)
@@ -601,8 +740,9 @@ def analysis(input_list):
                         if (clss.kind != 'concrete'):
                            class1.kind = clss.kind
                         print('pridavam parenta')
-                        # for m in clss.methods:
-                        #    class1.add_method(m)
+                        for m in clss.methods:
+                           if (m.pure != 'yes'):
+                              class1.add_method(m)
                         for a in clss.attributes:
                            print('som vo fore pridavam atr')
                            class1.add_attribute(a)
@@ -614,9 +754,9 @@ def analysis(input_list):
                                  sys.exit(4)
                            else:
                               print('som v posratom else')
-                              index = definition(input_list, class1, i+5)
+                              index = definition(class_list, input_list, class1, i+5)
                               while (input_list[index+1] != '}'):
-                                 index = definition(input_list, class1, index+1)
+                                 index = definition(class_list, input_list, class1, index+1)
                         else:
                            sys.stderr.write('Wrong input file formating!\n')
                            sys.exit(4)
@@ -628,22 +768,116 @@ def analysis(input_list):
                         sys.exit(4)
 
                   else:
-                     index = definition(input_list, class1, i+3)
+                     index = definition(class_list, input_list, class1, i+3)
                      while (input_list[index+1] != '}'):
-                        index = definition(input_list, class1, index+1) 
+                        index = definition(class_list, input_list, class1, index+1) 
+               else:
+                  sys.stderr.write('Wrong input file formating!\n')
+                  sys.exit(4)
+
+            elif(input_list[i+3] == 'public'):
+               print('som v public s :')
+               for clss in class_list:
+                  if (input_list[i+4] == clss.name):
+                     clss.privacy = 'public'    
+                     clss.is_parent()   
+                     class1.add_parent_class(clss)
+                     if (clss.kind != 'concrete'):
+                        class1.kind = clss.kind
+
+                     for m in clss.methods:
+                        class1.add_method(m)
+
+                     for a in clss.attributes:
+                        a.privacy = 'public'
+                        print(a.name)
+                        print('pridavam attribute')
+                        class1.add_attribute(a)
+               if (input_list[i+5] == ','):
+                  if (input_list[i+6] == 'public'):
+                      for clss in class_list:
+                        if (input_list[i+7] == clss.name):  
+                           clss.privacy = 'public'
+                           clss.is_parent()     
+                           class1.add_parent_class(clss)
+                           if (clss.kind != 'concrete'):
+                              class1.kind = clss.kind
+                           print('pridavam parenta')
+                           for m in clss.methods:
+                              class1.add_method(m)
+                           for a in clss.attributes:
+                              print('som vo fore pridavam atr')
+                              class1.add_attribute(a)
+                           print('som pridal parenta a mam:', input_list[i+8])
+                           if (input_list[i+8] == '{'): 
+                              if (input_list[i+9] == '}'):
+                                 if (input_list[i+10] != ';'):
+                                    sys.stderr.write('Wrong input file formating!\n')
+                                    sys.exit(4)
+                              else:
+                                 print('som v posratom else')
+                                 index = definition(class_list,input_list, class1, i+6)
+                                 while (input_list[index+1] != '}'):
+                                    index = definition(class_list, input_list, class1, index+1)
+                           else:
+                              sys.stderr.write('Wrong input file formating!\n')
+                              sys.exit(4)
+                  else:
+                     for clss in class_list:
+                        if (input_list[i+6] == clss.name):  
+                           clss.is_parent()     
+                           class1.add_parent_class(clss)
+                           if (clss.kind != 'concrete'):
+                              class1.kind = clss.kind
+                           print('pridavam parenta')
+                           for m in clss.methods:
+                              class1.add_method(m)
+                           for a in clss.attributes:
+                              print('som vo fore pridavam atr')
+                              class1.add_attribute(a)
+                           print('som pridal parenta a mam:', input_list[i+7])
+                           if (input_list[i+7] == '{'): 
+                              if (input_list[i+8] == '}'):
+                                 if (input_list[i+9] != ';'):
+                                    sys.stderr.write('Wrong input file formating!\n')
+                                    sys.exit(4)
+                              else:
+                                 print('som v posratom else')
+                                 index = definition(class_list, input_list, class1, i+5)
+                                 while (input_list[index+1] != '}'):
+                                    index = definition(class_list, input_list, class1, index+1)
+                           else:
+                              sys.stderr.write('Wrong input file formating!\n')
+                              sys.exit(4)
+
+               elif (input_list[i+5] == '{'):
+                  if (input_list[i+6] == '}'):
+                     if (input_list[i+7] != ';'):
+                        sys.stderr.write('Wrong input file formating!\n')
+                        sys.exit(4)
+
+                  else:
+                     index = definition(class_list, input_list, class1, i+3)
+                     while (input_list[index+1] != '}'):
+                        index = definition(class_list, input_list, class1, index+1) 
                else:
                   sys.stderr.write('Wrong input file formating!\n')
                   sys.exit(4)
 
             else:
+               print('som v else :')
                for clss in class_list:
+                  print(clss.name)
+                  print(input_list[i+3])
                   if (input_list[i+3] == clss.name): 
+                     print('som v ife')
                      clss.is_parent()   
                      class1.add_parent_class(clss)
                      if (clss.kind != 'concrete'):
                         class1.kind = clss.kind
-                     # for m in clss.methods:
-                     #    class1.add_method(m)
+                     for m in clss.methods:
+                           class1.add_method(m)
+                     
                      for a in clss.attributes:
                         class1.add_attribute(a)
                if (input_list[i+4] == ','):
@@ -654,8 +888,9 @@ def analysis(input_list):
                         if (clss.kind != 'concrete'):
                            class1.kind = clss.kind
 
-                        # for m in clss.methods:
-                        #    class1.add_method(m)
+                        for m in clss.methods:
+                           if (m.pure != 'yes'):
+                              class1.add_method(m)
                         for a in clss.attributes:
                            class1.add_attribute(a)
                   if (input_list[i+6] == '{'):
@@ -665,9 +900,9 @@ def analysis(input_list):
                            sys.exit(4)
 
                      else:
-                        index = definition(input_list, class1, i+4)
+                        index = definition(class_list, input_list, class1, i+4)
                         while (input_list[index+1] != '}'):
-                           index = definition(input_list, class1, index+1)
+                           index = definition(class_list, input_list, class1, index+1)
                   else:
                      sys.stderr.write('Wrong input file formating!\n')
                      sys.exit(4)
@@ -690,10 +925,10 @@ def analysis(input_list):
 
                   else:
                      print('som pred def')
-                     index = definition(input_list, class1, i+2)
+                     index = definition(class_list, input_list, class1, i+2)
                      print(input_list[index])
                      while (input_list[index+1] != '}'):
-                        index = definition(input_list, class1, index-2)
+                        index = definition(class_list, input_list, class1, index-2)
                else:
                   sys.stderr.write('Wrong input file formating!\n')
                   sys.exit(4)
@@ -701,7 +936,7 @@ def analysis(input_list):
          else:
             sys.stderr.write('Wrong input file formating!\n')
             sys.exit(4)
-         # print('pridavam triedu')
+         print('pridavam triedu')
          # print(class1.name)
          # if class1.methods:
          #    print(class1.methods[0].name)
@@ -733,12 +968,15 @@ def parser(input_content):
             input_list.append(word)
             word = ''
          input_list.append(char)
-      elif (char != '\n') and (char != ' '):
+      elif (char != '\n') and (char != ' ') and (char != '\t'):
          if ((char == ',') or (char == ':')) and (word != ''):
             input_list.append(word)
             input_list.append(char)
             word = ''
          else:   
+            if(char == ':') and (word == ''):
+               input_list.append(char)
+               continue
             word += char
          continue
    print (input_list)
