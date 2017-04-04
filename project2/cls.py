@@ -423,48 +423,86 @@ def definition(class_list, input_list, class1, index):
 
    elif (input_list[index+3] == 'public'):
       print('som v public')
+      print(input_list[index+4])
       if (input_list[index+4] != ':'):
          sys.stderr.write('Wrong input file formating!\n')
          sys.exit(4)
+      print(input_list[index+5])
       if (test_type(input_list[index+5]) == False):
          if (input_list[index+5] == 'virtual'):
+            print(input_list[index+6])
             if (test_type(input_list[index+6]) == False):
                sys.stderr.write('Wrong input file formating!\n')
             else:
+               print(input_list[index+8])
                if (input_list[index+8] == '('):
-                  for x in range(len(class1.methods)):
-                     if (class1.methods[x].name == input_list[index+7]):
-                        class1.methods.remove(class1.methods[x])
-                  method1 = Method(input_list[index+7], input_list[index+6])
-                  method1.privacy = 'public'
-                  class1.add_method(method1)
-               else:
-                  sys.stderr.write('Wrong input file formating!\n')
-                  sys.exit(4)
-               if (test_type(input_list[index+9]) != False):
-                  if (input_list[index+9] == 'void'):
-                     if (input_list[index+10] != ')'):
-                        sys.stderr.write('Wrong input file formating!\n')
-                        sys.exit(4)
-                     if (input_list[index+11] == '{'):
-                        if (input_list[index+12] != '}'):
+                  print('som v ife')
+                  if (class1.methods):
+                     lenght = len(class1.methods)
+                     x = 0
+                     while (x < lenght):
+                        print(x)
+                        print(input_list[index+7])
+                        if (class1.methods[x].name == input_list[index+7]):
+                           print('mazem metodu')
+                           class1.methods.remove(class1.methods[x])
+                           lenght -= 1
+                        x += 1
+                           
+                     print('pridavam metodu')
+                     method1 = Method(input_list[index+7], input_list[index+6])
+                     method1.privacy = 'public'
+                     class1.add_method(method1)
+                     if (test_type(input_list[index+9]) != False):
+                        if (input_list[index+9] == 'void'):
+                           if (input_list[index+10] != ')'):
+                              sys.stderr.write('Wrong input file formating!\n')
+                              sys.exit(4)
+                           if (input_list[index+11] == '='):
+                              if (input_list[index+12] == '0'):
+                                 return index+13
+                           elif (input_list[index+11] != '{'):
+                              sys.stderr.write('Wrong input file formating!\n')
+                              sys.exit(4)
+                           if (input_list[index+12] == '}'):
+                              return index+13
+                     elif (input_list[index+9] == ')'):
+                        if (input_list[index+10] == '='):
+                           if (input_list[index+11] == '0'):
+                              method1.pure ='yes'
+                              return index+12
+                        elif (input_list[index+10] != '{'):
                            sys.stderr.write('Wrong input file formating!\n')
                            sys.exit(4)
-                        return index+13
-                     elif (input_list[index+11] == '='):
-                        if (input_list[index+12] == '0'):
-                           method1.pure = 'yes'
-                           return index+13
-
+                        if (input_list[index+11] == '}'):
+                           return index+12
                   else:
-                     arg1 = Argument(input_list[index+10], input_list[index+9])
-                     method1.add_arguments(arg1)
-                     if (input_list[index+11] == ')'):
-                        if (input_list[index+12] != '{'):
+                     sys.stderr.write('Wrong input file formating!\n')
+                     sys.exit(4)
+                  if (test_type(input_list[index+9]) != False):
+                     if (input_list[index+9] == 'void'):
+                        if (input_list[index+10] != ')'):
                            sys.stderr.write('Wrong input file formating!\n')
                            sys.exit(4)
-                        if (input_list[index+13] == '}'):
-                           return index+14
+                        if (input_list[index+11] == '{'):
+                           if (input_list[index+12] != '}'):
+                              sys.stderr.write('Wrong input file formating!\n')
+                              sys.exit(4)
+                           return index+13
+                        elif (input_list[index+11] == '='):
+                           if (input_list[index+12] == '0'):
+                              method1.pure = 'yes'
+                              return index+13
+
+                     else:
+                        arg1 = Argument(input_list[index+10], input_list[index+9])
+                        method1.add_arguments(arg1)
+                        if (input_list[index+11] == ')'):
+                           if (input_list[index+12] != '{'):
+                              sys.stderr.write('Wrong input file formating!\n')
+                              sys.exit(4)
+                           if (input_list[index+13] == '}'):
+                              return index+14
 
          else:
             sys.stderr.write('Wrong input file formating!\n')
@@ -478,6 +516,15 @@ def definition(class_list, input_list, class1, index):
 
       elif (input_list[index+7] == '('):
          print('pridavam meth')
+         lenght = len(class1.methods)
+         x = 0
+         while(x < lenght):
+            if (class1.methods[x].name == input_list[index+6]):
+               print('mazem metodu')
+               class1.methods.remove(class1.methods[x])
+               lenght -= 1
+            x += 1
+         print ('pridavam metodu')
          method1 = Method(input_list[index+6], input_list[index+5])
          class1.add_method(method1)
 
@@ -652,9 +699,19 @@ def definition(class_list, input_list, class1, index):
          return index+4
 
       elif(input_list[index+5] == "("):
+         lenght = len(class1.methods)
+         x = 0
+         while(x < lenght):
+            if (class1.methods[x].name == input_list[index+4]):
+               print('mazem metodu')
+               class1.methods.remove(class1.methods[x])
+               lenght -= 1
+            x += 1
          print('pridavam metodu v definition')
          method1 = Method(input_list[index+4], input_list[index+3])
-         class1.add_method(method1)   
+         class1.add_method(method1)  
+         if (method1.pure != 'yes'):
+            class1.kind = 'concrete' 
          if (input_list[index+6] == ')'):
             if (input_list[index+7] == '{'):
                for x in range(index+8, len(input_list)):

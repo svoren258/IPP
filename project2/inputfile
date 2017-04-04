@@ -1,12 +1,14 @@
-class A {
+class A {virtual int f(void)= 0 ; };
+class B : A {
 public:
     int var;
+    virtual int f(void) {};
 };
-class B {
-    public:
-    float var;
+class C : A {};
+class D : public B, C {
+public:
+    virtual int f(void) {};
 };
-
-class C : public A, public B {
-    using B::var;
+class E : D {
+    int f(void) {};
 };
