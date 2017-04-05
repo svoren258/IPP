@@ -1,14 +1,9 @@
-class A {virtual int f(void)= 0 ; };
-class B : A {
+class A {
+    bool a;
 public:
-    int var;
-    virtual int f(void) {};
+    float aa;
 };
-class C : A {};
-class D : public B, C {
-public:
-    virtual int f(void) {};
-};
-class E : D {
-    int f(void) {};
+
+class B : public A {
+    int *b;
 };
