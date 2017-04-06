@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
-import sys, getopt
+import sys, getopt, argparse
 
 details = False
 details_all = False
+conflicts = False
 
 private = False
 public = False
@@ -1260,7 +1261,7 @@ def analysis(input_list):
    return class_list
 
 
-def parser(input_content):
+def parsering(input_content):
    word = ''
    input_list = []
    types = ['int', 'bool', 'char', 'float', 'double', 'void']
@@ -1315,49 +1316,63 @@ def parser(input_content):
    class_list = analysis(input_list)
    return class_list
 
-def main(argv):
+def main():
+   global details_all
+   global details
+   global conflicts
+
    inputfilename = ''
    outputfilename = ''
    classname = ''
-   global details
-   global details_all
-   k = 4
    stdin = True
    stdout = True
-   try:
-      opts, args = getopt.getopt(argv,"i:o:",["help", "input=", "output=", "pretty-xml=", "details="])
-   except getopt.GetoptError:
-      sys.stderr.write('Wrong parameters formating!\n')
-      sys.exit(1)
-   for opt, arg in opts:
-      if opt == '--help':
-         print ('usage: $ python3.6 cls.py --input=file --output=file --pretty-xml=k --details=class')
-         sys.exit()
-      elif opt in ("--input="):
-         inputfilename = arg
-         stdin = False
-      elif opt in ("--output="):
-         outputfilename = arg
-         stdout = False
-      elif opt in ("--pretty-xml"):
-         if (arg != '') and (arg.isdigit()):
-            k = arg
-         else:
-            sys.stderr.write('Wrong parameters formating!\n')
-            sys.exit(1)
-      elif opt in ("--details"):
-         classname = arg
-         print('classname argument ma hodnotu', classname)
-         if (classname == 'ALL'):
-            details_all = True
-         else:            
-            details = True
 
+   k = 2
+   parser = argparse.ArgumentParser()
 
+   parser.add_argument('-i', '--input=', dest='input')
+   parser.add_argument('-o', '--output=', dest='output')
+   parser.add_argument('--details', action='store', nargs='*', dest='details')
+   parser.add_argument('--pretty-xml', dest='k', nargs='*', action='store')
+   parser.add_argument('--conflicts', dest='conflicts', action='store_true')
 
+   parsed = parser.parse_args()
+   print(parsed)
+
+   if (parsed.k == []):
+      k = 4
+   elif (parsed.k != None):
+      k = parsed.k[0]
+   
+   print(k)
+
+   if (parsed.details == []):
+      details_all = True
+      print('details all')
+   elif (parsed.details != None):
+      classname = parsed.details[0]
+      print(classname)
+
+   if (parsed.conflicts == None):
+      conflicts = True
+      print('conflicts')
+
+   if (parsed.input):
+      print(parsed.input)
+      inputfilename = parsed.input
+      stdin = False
+   else:
+      stdin = True
+
+   if (parsed.output):
+      print(parsed.output)
+      outputfilename = parsed.output
+      stdout = False
+   else:
+      stdout = True
 
    if (stdin == False):
-      print ('Input file name:', inputfilename) 
+      # print ('Input file name:', inputfilename) 
       inputfile = open(inputfilename, 'r')
       input_content = inputfile.read()
 
@@ -1365,13 +1380,13 @@ def main(argv):
       input_content = input()
       input_content += '\n'
 
-   # class_list = parser(input_content)
+   class_list = parsering(input_content)
 
-   output(stdout, outputfilename, k, parser(input_content), classname)
+   output(stdout, outputfilename, k, parsering(input_content), classname)
 
    #closing files
    if (stdin == False):
       inputfile.close()
-   
+
 if __name__ == "__main__":
-   main(sys.argv[1:])
+    main()
