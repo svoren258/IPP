@@ -490,18 +490,18 @@ def output(stdout, outputfilename, k, class_list, classname = ''):
 
 def test_type(string):
    types = ['int', 'int *', 'int&',
-           'float', 'float *', 'float&', 
-           'double', 'double *', 'double&',
-           'long double', 'long double *', 'long double&', 'void', 'void *', 'void&',
-           'bool', 'bool *', 'bool&',
-           'char', 'char *', 'char&',
-           'char16_t', 'char16_t *', 'char16_t&', 'char32_t', 'char32_t *', 'char32_t&',
-           'wchar_t', 'wchar_t *', 'wchar_t&','signed char', 'signed char *', 'signed char&',
+           'float', 'float *', 'float &', 
+           'double', 'double *', 'double &',
+           'long double', 'long double *', 'long double &', 'void', 'void *', 'void &',
+           'bool', 'bool *', 'bool &',
+           'char', 'char *', 'char &',
+           'char16_t', 'char16_t *', 'char16_t &', 'char32_t', 'char32_t *', 'char32_t &',
+           'wchar_t', 'wchar_t *', 'wchar_t &','signed char', 'signed char *', 'signed char &',
            'short int', 'short int *', 'short int&', 'long int', 'long int *', 'long int&', 'long long int',
-           'long long int *', 'long long int&', 'unsigned char', 'unsigned char *', 'unsigned char&',
-           'unsigned short int', 'unsigned short int *', 'unsigned short int&', 'unsigned int', 'unsigned int *',
-           'unsigned int&', 'unsigned long int', 'unsigned long int *', 'unsigned long int&',
-           'unsigned long long int', 'unsigned long long int *', 'unsigned long long int&']
+           'long long int *', 'long long int&', 'unsigned char', 'unsigned char *', 'unsigned char &',
+           'unsigned short int', 'unsigned short int *', 'unsigned short int &', 'unsigned int', 'unsigned int *',
+           'unsigned int &', 'unsigned long int', 'unsigned long int *', 'unsigned long int &',
+           'unsigned long long int', 'unsigned long long int *', 'unsigned long long int &']
 
    for t in types:
       if (string == t):
@@ -744,11 +744,16 @@ def derivate(input_list, class1, privacy, index):
    print('derivate')
    global class_list
    global conflicts
+   base_class = ''
 
    for clss in class_list:
       if (clss.name == input_list[index]):
          base_class = clss
          break
+
+   if (base_class == ''):
+      sys.stderr.write('Class' + input_list[index] + 'is not defined!\n')
+      sys.exit(4)
 
    base_class.privacy = privacy
 
@@ -867,7 +872,7 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
             else:
                sys.stderr.write('Wrong input file formating!\n')
                sys.exit(4)
-               
+
          print(input_list[i+1])
          print(virtual)
          if (input_list[i+1] == '='):
@@ -1116,10 +1121,9 @@ def analysis(input_list):
 def parsering(input_content):
    word = ''
    input_list = []
-   types = ['int', 'bool', 'char', 'float', 'double', 'void', 'char16_t', 'char32_t', 'wchar_t']
+   types = ['bool','char','char16_t','char32_t','wchar_t','signed char','short int','int','long int','long long int','unsigned char','unsigned short int','unsigned int','unsigned long int','unsigned long long int','float','double','long double','void']
    
    for char in input_content:
-      print(char)
       if ((char == '\n') or (char == ' ')) and (word != ''):
          input_list.append(word)
          word = ''
@@ -1146,20 +1150,26 @@ def parsering(input_content):
                continue
             word += char
 
-   print (input_list)
-   
    for t in types:
-      for c in input_list:
-         if (t == c):
-            index = input_list.index(c)
-            if (input_list[index+1] == '*'):
-               word = input_list[index] + ' ' + input_list[index+1]
-               input_list.insert(index, word)
-               input_list.remove(c)
-               input_list.remove('*')
+      x = 0
+      while(x < len(input_list)): 
+         if (t == input_list[x]):
+            print(input_list[x])
+            if (input_list[x+1] == '*'):
+               word = input_list[x] + ' *'
+               input_list.insert(x, word)
+               del input_list[x+2]
+               del input_list[x+1]
                break
-            elif (input_list[index+1] == '&'):
-               word = input_list[index] + input_list[index+1]
+            elif (input_list[x+1] == '&'):
+               word = input_list[x] + ' ' + input_list[x+1]
+               input_list.insert(x, word)
+               del input_list[x+2]
+               del input_list[x+1]
+         x += 1
+
+   print(input_list)
+
 
    class_list = analysis(input_list)
 

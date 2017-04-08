@@ -1,7 +1,7 @@
 class A {public: virtual int f(void) =0;};
 class B : protected A {
 public:
-    static int var;
+    static int *var;
 };
 class C {};
 class D : B, public C {
