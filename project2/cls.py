@@ -5,6 +5,7 @@ import sys, getopt, argparse
 details = False
 details_all = False
 conflicts = False
+classname = ''
 
 private = False
 public = False
@@ -512,6 +513,7 @@ def is_conflict(class1):
    global conflicts
    global outputfile
    global k
+   global classname
 
    conflict_all = False
 
@@ -523,9 +525,13 @@ def is_conflict(class1):
          for j in range(i+1, len(class1.attributes)):
             if (class1.attributes[i].name == class1.attributes[j].name) and (class1.attributes[i].parentcls != class1 and class1.attributes[j].parentcls != class1):
                if (conflicts != True):
-                  print('attributes conflict')
-                  sys.stderr.write('Conflict in inheritance!\n')
-                  sys.exit(21)
+                  if (classname == class1.name):
+                     print('attributes conflict')
+                     sys.stderr.write('Conflict in inheritance!\n')
+                     sys.exit(21)
+                  else:
+                     return
+
                else:
                   if (stdout == True):
                      print(k_string*n + '<member name="' + class1.attributes[i].name + '">')
@@ -624,15 +630,18 @@ def is_conflict(class1):
                      class1.attributes.remove(class1.attributes[i])
                      conflict_all = False
 
-
+   print(len(class1.methods))
    if (class1.methods) and (len(class1.methods) != 1):
       for i in range(len(class1.methods)):
          for j in range(i+1, len(class1.methods)):
             if (class1.methods[i].name == class1.methods[j].name) and (class1.methods[i].parentcls != class1 and class1.methods[j].parentcls != class1):
                if (conflicts != True):
-                  print('methods conflict')
-                  sys.stderr.write('Conflict in inheritance!\n')
-                  sys.exit(21)
+                  if (classname == class1.name):
+                     print('methods conflict')
+                     sys.stderr.write('Conflict in inheritance!\n')
+                     sys.exit(21)
+                  else:
+                     return
                else:
                   if (stdout == True):
                      print(k_string*n + '<member name="' + class1.methods[i].name + '">')
@@ -796,6 +805,7 @@ def derivate(input_list, class1, privacy, index):
          attr1.privacy = attr.privacy
          class1.add_attribute(attr1)
 
+   print(len(class1.methods))
    for m in class1.methods:
       print(m.name)
       print(m.privacy)
@@ -857,6 +867,7 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
             else:
                sys.stderr.write('Wrong input file formating!\n')
                sys.exit(4)
+               
          print(input_list[i+1])
          print(virtual)
          if (input_list[i+1] == '='):
@@ -869,6 +880,10 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
                   class1.add_method(method1)
                   return i+4
 
+               else:
+                  sys.stderr.write('Wrong input file formating!\n')
+                  sys.exit(4)
+
          elif (input_list[i+1] != '{'):
             sys.stderr.write('Wrong input file formating!\n')
             sys.exit(4)
@@ -877,12 +892,19 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
             sys.stderr.write('Wrong input file formating!\n')
             sys.exit(4)
 
-         if (input_list[i+3] != ';'):
-            sys.stderr.write('Wrong input file formating!\n')
-            sys.exit(4)
+         x = 0
+         length = len(class1.methods)
+         print(len(class1.methods))
+         while (x < length):
+            if (class1.methods[x].name == method1.name) and (class1.methods[x].mtype == method1.mtype):
+               class1.methods.remove(class1.methods[x])
+               length -= 1
+               print(x)
+            else:
+               x += 1
 
-         print('pridavam metodu', method1.parentcls.name)
          class1.add_method(method1)
+
          for m in class1.methods:
             if (m.pure == 'yes'):
                pureness = 'yes'
@@ -890,8 +912,13 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
             
          if (pureness != 'yes'):
             class1.kind = 'concrete'
-         return i+4
-
+            
+         if (input_list[i+3] != ';'):
+            return i+3
+         else:
+            while (input_list[i+3] == ';'):
+               i += 1
+            return i+3
 
       elif (input_list[index+2] == '='):
          if (input_list[index+4] != ';'):
@@ -914,6 +941,14 @@ def using(class1, input_list, index, privacy = 'private'):
       if (input_list[index] == clss.name):
          defined = True
          break
+
+   for attr in clss.attributes:
+      if (attr.parentcls.name == clss.name) and (input_list[index+3] == attr.name):
+         break
+      elif (input_list[index+3] == attr.name):
+         clss = attr.parentcls
+         break
+
       
    if (defined != True):
       sys.stderr.write('Wrong input file formating!\n')
@@ -927,7 +962,10 @@ def using(class1, input_list, index, privacy = 'private'):
 
    x = 0
    length = len(class1.attributes)
+   print(len(class1.attributes))
    while (x < length):
+      print(input_list[index+3])
+      print(class1.attributes[x].parentcls.name)
       if (input_list[index+3] == class1.attributes[x].name) and (class1.attributes[x].parentcls != clss):
          class1.attributes.remove(class1.attributes[x])
          length -= 1
@@ -1073,14 +1111,6 @@ def analysis(input_list):
          if (conflicts == False):
             is_conflict(class1)
 
-      # for clss in class_list:
-      #    print(clss.name)
-      #    for m in clss.methods:
-      #       print(m.name)
-      #       print(m.privacy)
-      #    for attr in clss.attributes:
-      #       print(attr.name)
-      #       print(attr.privacy)
    return class_list
 
 def parsering(input_content):
@@ -1149,10 +1179,11 @@ def main():
    global conflicts
    global stdout
    global k
+   global classname
 
    inputfilename = ''
    outputfilename = ''
-   classname = ''
+   
    stdin = True
 
    parser = argparse.ArgumentParser()
