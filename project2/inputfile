@@ -1,9 +1,5 @@
-class A {
-    bool a;
-public:
-    float aa;
-};
-
+class A { public:int a; };
 class B : public A {
-    int *b;
 };
+class C : A { };
+class D : public B, C {	public: };
