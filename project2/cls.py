@@ -499,8 +499,8 @@ def test_type(string):
            'char', 'char *', 'char &',
            'char16_t', 'char16_t *', 'char16_t &', 'char32_t', 'char32_t *', 'char32_t &',
            'wchar_t', 'wchar_t *', 'wchar_t &','signed char', 'signed char *', 'signed char &',
-           'short int', 'short int *', 'short int&', 'long int', 'long int *', 'long int&', 'long long int',
-           'long long int *', 'long long int&', 'unsigned char', 'unsigned char *', 'unsigned char &',
+           'short int', 'short int *', 'short int&', 'long int', 'long int *', 'long int &', 'long long int',
+           'long long int *', 'long long int &', 'unsigned char', 'unsigned char *', 'unsigned char &',
            'unsigned short int', 'unsigned short int *', 'unsigned short int &', 'unsigned int', 'unsigned int *',
            'unsigned int &', 'unsigned long int', 'unsigned long int *', 'unsigned long int &',
            'unsigned long long int', 'unsigned long long int *', 'unsigned long long int &']
