@@ -11,6 +11,8 @@ private = False
 public = False
 protected = False
 
+mystr = 'none'
+
 k = 2
 stdout = True
 outputfile = ''
@@ -1118,6 +1120,83 @@ def analysis(input_list):
 
    return class_list
 
+def word_control(word):
+   
+   global mystr
+   print(word)
+   print('mystr', mystr)
+   if (word == 'signed'):
+      if (mystr == 'none'):
+         mystr = word
+         return 'next'   
+      else:
+         sys.stderr.write('Incompatible type!\n')
+         sys.exit(4)
+   elif (word == 'char'):
+      if (mystr == 'signed') or (mystr == 'unsigned') or (mystr == 'none'):
+         mystr += ' ' + word
+         return mystr
+      elif (mystr == 'none'):
+         return word
+      else:
+         sys.stderr.write('Incompatible type!\n')
+         sys.exit(4)
+
+   elif (word == 'short'):
+      if (mystr == 'unsigned'):
+         mystr += ' ' + word
+         return 'next'
+      elif (mystr == 'none'):
+         mystr = word
+         return 'next'
+      else:
+         sys.stderr.write('Incompatible type!\n')
+         sys.exit(4)
+   elif (word == 'int'):
+         if (mystr == 'short') or (mystr == 'long') or (mystr == 'long long') or (mystr == 'unsigned shor') or (mystr == 'unsigned long') or (mystr == 'unsigned long long'): 
+            mystr += ' ' + word
+            return mystr
+         elif (mystr == 'none'):
+            return word
+         else:
+            sys.stderr.write('Incompatible type!\n')
+            sys.exit(4)
+   elif (word == 'long'):
+      if (mystr == 'long') or (mystr == 'unsigned'):
+         mystr += ' ' + word
+         return 'next'
+      elif (mystr == 'none'):
+         mystr = word
+         return 'next'
+      else:
+         sys.stderr.write('Incompatible type!\n')
+         sys.exit(4)
+   elif (word == 'unsigned'):
+      if (mystr == 'none'):
+         mystr = word
+         return 'next'
+      else:
+         sys.stderr.write('Incompatible type!\n')
+         sys.exit(4)
+   elif (word == 'float'):
+      if (mystr == 'none'):
+         return word
+      else:
+         sys.stderr.write('Incompatible type!\n')
+         sys.exit(4)
+   elif (word == 'double'):
+      if (mystr == 'long'):
+         mystr += ' ' + word
+         return mystr
+      elif (mystr == 'none'):
+         return word
+      else:
+         sys.stderr.write('Incompatible type!\n')
+         sys.exit(4)
+   else:
+      mystr = 'none'
+      return word
+
 def parsering(input_content):
    word = ''
    input_list = []
@@ -1125,23 +1204,33 @@ def parsering(input_content):
    
    for char in input_content:
       if ((char == '\n') or (char == ' ')) and (word != ''):
-         input_list.append(word)
+         word = word_control(word)
+         if (word != 'next'):
+            input_list.append(word)
+         
          word = ''
          continue
       elif ((char == "(") or (char == ")")) and (word != ''):
-         input_list.append(word)
+         word = word_control(word)
+         if (word != 'next'):
+            input_list.append(word)
+         
          word = ''
-         word += char
-         input_list.append(word)
-         word = ''
+         input_list.append(char)
       elif (char == '{') or (char == '}') or (char == ';') or (char == '=') or (char.isdigit()):
          if (word != ''):
-            input_list.append(word)
+            word = word_control(word)
+            if (word != 'next'):
+               input_list.append(word)
+            
             word = ''
          input_list.append(char)
       elif (char != '\n') and (char != ' ') and (char != '\t'):
          if ((char == ',') or (char == ':')) and (word != ''):
-            input_list.append(word)
+            word = word_control(word)
+            if (word != 'next'):
+               input_list.append(word)
+            
             input_list.append(char)
             word = ''
          else:   
