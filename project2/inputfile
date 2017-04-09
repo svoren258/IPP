@@ -1,10 +1,12 @@
-class A {public: virtual int f(void) =0;};
-class B : protected A {
+class A {virtual int f(void) =0;};
+class B : A {
 public:
-    static long long int &var;
+    int function(int x, int y) {}
 };
-class C {};
-class D : B, public C {
-protected:
-    using B::var;
+class C {
+public:
+    int function(int x, int y) {}
+};
+class D : protected B, C {
+  using C::function;
 };
