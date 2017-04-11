@@ -9,7 +9,10 @@ classname = ''
 private = False
 public = False
 protected = False
+privacy_next = 'private'
 
+meth_list = []
+attr_list = []
 mystr = 'none'
 
 k = 2
@@ -61,6 +64,7 @@ class Method(object):
       self.pure = pure
       self.arguments = []
       self.parentcls = parentcls
+      self.is_parent = False
 
    def add_argument(self, argument):
       self.arguments.append(argument) 
@@ -94,6 +98,10 @@ def details_output(classname, methorattr, mthattr, privacy, n, k_string, stdout,
    global private
    global public
    global protected
+   global meth_list
+   global attr_list
+
+
    mylist = []
    for i in range(len(methorattr)):
       if (methorattr[i].privacy == privacy):
@@ -102,83 +110,103 @@ def details_output(classname, methorattr, mthattr, privacy, n, k_string, stdout,
    if (mthattr == 'methods'):
       if mylist:
          if (privacy == 'private'):
-            private = True
+            mylist = list(set(mylist) - set(meth_list))
+            if mylist:
+               private = True
          elif (privacy == 'protected'):
-            protected = True
+            mylist = list(set(mylist) - set(meth_list))
+            if mylist:
+               protected = True
          elif (privacy == 'public'):
-            public = True   
-         if (stdout == True):
-            print(k_string*n + '<' + privacy +'>')
-            n += 1
-            print(k_string*n + '<methods>')
-         else:
-            outputfile.write(k_string*n + '<' + privacy + '>\n')
-            n += 1
-            outputfile.write(k_string*n + '<methods>\n')
-         n += 1
-         for method in mylist:
-            if (stdout == True) and (method.privacy == privacy):
-               print(k_string*n + '<method name="' + method.name + '" type="' + method.mtype + '" scope="' + method.scope + '">')
-               if (method.parentcls.name != classname):
-                  n += 1
-                  print (k_string*n + '<from name="' + method.parentcls.name + '"/>')
-                  n -= 1
+            mylist = list(set(mylist) - set(meth_list))
+            if mylist:
+               public = True
+         if mylist:   
+            if (stdout == True):
+               print(k_string*n + '<' + privacy +'>')
                n += 1
-               print(k_string*n + '<virtual pure="' + method.pure + '"/>')
-               
-
+               print(k_string*n + '<methods>')
             else:
-               outputfile.write(k_string*n + '<method name="' + method.name + '" type="' + method.mtype + '" scope="' + method.scope + '">\n')
+               outputfile.write(k_string*n + '<' + privacy + '>\n')
                n += 1
-               if (method.parentcls.name != classname):
+               outputfile.write(k_string*n + '<methods>\n')
+            n += 1
+            for method in mylist:
+               if (stdout == True) and (method.privacy == privacy):
+                  print(k_string*n + '<method name="' + method.name + '" type="' + method.mtype + '" scope="' + method.scope + '">')
+                  if (method.parentcls.name != classname):
+                     n += 1
+                     print (k_string*n + '<from name="' + method.parentcls.name + '"/>')
+                     n -= 1
                   n += 1
-                  outputfile.write(k_string*n + '<from name="' + method.parentcls.name + '"/>\n')
-                  # n -= 1
-               outputfile.write(k_string*n + '<virtual pure="' + method.pure + '"/>\n')
-               
-            
-            if(stdout == True):
-               print (k_string*n + '<arguments>')   
-            else:
-               outputfile.write(k_string*n + '<arguments>\n')
-
-            if method.arguments:
-               n += 1
-               for arg in method.arguments:
+                  print(k_string*n + '<virtual pure="' + method.pure + '"/>')
                   
-                  if (stdout == True):
-                     print(k_string*n + '<argument name="' + arg.name + '" type="' + arg.argtype +'">')
-                  else:
-                     outputfile.write(k_string*n + '<argument name="' + arg.name + '" type="' + arg.argtype +'">\n')
-               n -= 1
+
+               else:
+                  outputfile.write(k_string*n + '<method name="' + method.name + '" type="' + method.mtype + '" scope="' + method.scope + '">\n')
+                  n += 1
+                  if (method.parentcls.name != classname):
+                     n += 1
+                     outputfile.write(k_string*n + '<from name="' + method.parentcls.name + '"/>\n')
+                     # n -= 1
+                  outputfile.write(k_string*n + '<virtual pure="' + method.pure + '"/>\n')
+                  
                
-            
-            if(stdout == True):
-               print (k_string*n + '<arguments/>')
-            else:
-               outputfile.write(k_string*n + '<arguments/>\n')
+               if method.arguments:
+                  if(stdout == True):
+                     print (k_string*n + '<arguments>')   
+                  else:
+                     outputfile.write(k_string*n + '<arguments>\n')
+                  n += 1
+                  for arg in method.arguments:
+                     
+                     if (stdout == True):
+                        print(k_string*n + '<argument name="' + arg.name + '" type="' + arg.argtype +'">')
+                     else:
+                        outputfile.write(k_string*n + '<argument name="' + arg.name + '" type="' + arg.argtype +'">\n')
+                  n -= 1
+                  
+               
+               if(stdout == True):
+                  print (k_string*n + '<arguments/>')
+               else:
+                  outputfile.write(k_string*n + '<arguments/>\n')
+
+               n -= 1
+               if(stdout == True):
+                  print (k_string*n + '</method>')
+               else:
+                  outputfile.write(k_string*n + '</method>\n')
 
             n -= 1
             if(stdout == True):
-               print (k_string*n + '</method>')
+               print (k_string*n + '</methods>')
             else:
-               outputfile.write(k_string*n + '</method>\n')
-
-         n -= 1
-         if(stdout == True):
-            print (k_string*n + '</methods>')
-         else:
-            outputfile.write(k_string*n + '</methods>\n')
+               outputfile.write(k_string*n + '</methods>\n')
 
    elif(mthattr == 'attributes'):
       if mylist:
+         
          if (privacy == 'private') and (private == False):
+            mylist = list(set(mylist) - set(attr_list))
+            # length = len(mylist)
+            # x = 0
+            # while (x < length):
+            #    if (mylist[x].parentcls.name != classname):
+            #       del mylist[x]
+            #       length -= 1
+            #    else:
+            #       x += 1
+
+            # if not mylist:
+            #    return
             private = True 
             if (stdout == True):
                print(k_string*n + '<' + privacy + '>')
             else:
                outputfile.write(k_string*n + '<' + privacy + '>\n')
          elif (privacy == 'protected') and (protected == False):
+            mylist = list(set(mylist) - set(attr_list))
             protected = True
             if (stdout == True):
                print(k_string*n + '<' + privacy + '>')
@@ -186,43 +214,51 @@ def details_output(classname, methorattr, mthattr, privacy, n, k_string, stdout,
                outputfile.write(k_string*n + '<' + privacy + '>\n')
 
          elif (privacy == 'public') and (public == False):
+            mylist = list(set(mylist) - set(attr_list))
             public = True
             if (stdout == True):
                print(k_string*n + '<' + privacy + '>')
             else:
                outputfile.write(k_string*n + '<' + privacy + '>\n')
 
-         n += 1   
-         if(stdout == True):
-            print(k_string*n + '<attributes>')
-         else:
-            outputfile.write(k_string*n + '<attributes>\n')
-         n += 1
-         for attr in mylist:
-            if (stdout == True) and (attr.privacy == privacy):
-               print (k_string*n + '<attribute name="' + attr.name + '" type="' + attr.attype + '" scope="' + attr.scope + '">')
+         if (mylist):
+            # if (stdout == True) and :
+            #    print(k_string*n + '<' + privacy + '>')
                
-               if (attr.parentcls.name != classname):
-                  n += 1
-                  print (k_string*n + '<from name="' + attr.parentcls.name + '"/>')
-                  n -= 1
-            else:
-               outputfile.write(k_string*n + '<attribute name="' + attr.name + '" type="' + attr.attype + '" scope="' + attr.scope + '">\n')
-               if (attr.parentcls.name != classname):
-                  n += 1
-                  outputfile.write(k_string*n + '<from name="' + attr.parentcls.name + '"/>\n')
-                  n -= 1
-         
-            
+            # else:
+            #    outputfile.write(k_string*n + '<' + privacy + '>\n')
+               
+            n += 1   
             if(stdout == True):
-               print(k_string*n + '</attribute>')
+               print(k_string*n + '<attributes>')
             else:
-               outputfile.write(k_string*n + '</attribute>\n')
-         n -= 1
-         if (stdout == True):
-            print(k_string*n + '</attributes>')
-         else:
-            outputfile.write(k_string*n + '</attributes>\n')
+               outputfile.write(k_string*n + '<attributes>\n')
+            n += 1
+            for attr in mylist:
+               if (stdout == True) and (attr.privacy == privacy):
+                  print (k_string*n + '<attribute name="' + attr.name + '" type="' + attr.attype + '" scope="' + attr.scope + '">')
+                  
+                  if (attr.parentcls.name != classname):
+                     n += 1
+                     print (k_string*n + '<from name="' + attr.parentcls.name + '"/>')
+                     n -= 1
+               else:
+                  outputfile.write(k_string*n + '<attribute name="' + attr.name + '" type="' + attr.attype + '" scope="' + attr.scope + '">\n')
+                  if (attr.parentcls.name != classname):
+                     n += 1
+                     outputfile.write(k_string*n + '<from name="' + attr.parentcls.name + '"/>\n')
+                     n -= 1
+            
+               
+               if(stdout == True):
+                  print(k_string*n + '</attribute>')
+               else:
+                  outputfile.write(k_string*n + '</attribute>\n')
+            n -= 1
+            if (stdout == True):
+               print(k_string*n + '</attributes>')
+            else:
+               outputfile.write(k_string*n + '</attributes>\n')
          
 def next(classname, k_string, n, class_list, stdout, outputfile):
    for j in range(len(class_list)): 
@@ -312,7 +348,7 @@ def output(stdout, outputfilename, k, class_list, classname = ''):
          if (stdout == True):
             print(k_string*n + '<class name="' + clss.name + '" kind="' + clss.kind + '">')
          else:
-            outputfile = open(outputfilename, 'w')
+            # outputfile = open(outputfilename, 'w')
             outputfile.write(k_string*n + '<class name="' + clss.name + '" kind="' + clss.kind + '">\n')
 
          n += 1
@@ -356,6 +392,7 @@ def output(stdout, outputfilename, k, class_list, classname = ''):
             private = False
             print (k_string*n + '</private>')
          elif (stdout == False) and (private == True):
+            private = False
             outputfile.write(k_string*n + '</private>\n')
    
 
@@ -368,6 +405,7 @@ def output(stdout, outputfilename, k, class_list, classname = ''):
             protected = False
             print (k_string*n + '</protected>')
          elif (stdout == False) and (protected == True):
+            protected = False
             outputfile.write(k_string*n + '</protected>\n')
 
 
@@ -380,6 +418,7 @@ def output(stdout, outputfilename, k, class_list, classname = ''):
             public = False
             print (k_string*n + '</public>')
          elif (stdout == False) and (public == True):
+            public = False
             outputfile.write(k_string*n + '</public>\n')
 
          n = 1
@@ -524,14 +563,17 @@ def is_conflict(class1):
          for j in range(i+1, len(class1.attributes)):
             if (class1.attributes[i].name == class1.attributes[j].name) and (class1.attributes[i].parentcls != class1 and class1.attributes[j].parentcls != class1):
                if (conflicts != True):
-                  if (classname == class1.name):
-                     print('attributes conflict')
+                  if (classname == class1.name) or (classname == ''):
                      sys.stderr.write('Conflict in inheritance!\n')
                      sys.exit(21)
                   else:
                      return
 
                else:
+                  for attr in class1.attributes[i].parentcls.attributes:
+                     if (attr.name == class1.attributes[i].name):
+                        privacy = attr.privacy
+
                   if (stdout == True):
                      print(k_string*n + '<member name="' + class1.attributes[i].name + '">')
                   else:
@@ -547,9 +589,9 @@ def is_conflict(class1):
                   n += 1
 
                   if (stdout == True):
-                     print(k_string*n + '<' + class1.attributes[i].privacy + '>')
+                     print(k_string*n + '<' + privacy + '>')
                   else:
-                     outputfile.write(k_string*n + '<' + class1.attributes[i].privacy + '>\n')
+                     outputfile.write(k_string*n + '<' + privacy + '>\n')
 
                   n += 1 
                   
@@ -561,9 +603,9 @@ def is_conflict(class1):
                   n -= 1
 
                   if (stdout == True):
-                     print(k_string*n + '</' + class1.attributes[i].privacy + '>')
+                     print(k_string*n + '</' + privacy + '>')
                   else:
-                     outputfile.write(k_string*n + '</' + class1.attributes[i].privacy + '>\n')
+                     outputfile.write(k_string*n + '</' + privacy + '>\n')
 
                   n -= 1
 
@@ -584,6 +626,9 @@ def is_conflict(class1):
                   else:
                      conflict_all = True
 
+                  for attr in class1.attributes[j].parentcls.attributes:
+                     if (attr.name == class1.attributes[j].name):
+                        privacy = attr.privacy
                   if (stdout == True):
                      print(k_string*n + '<class name="' + class1.attributes[j].parentcls.name + '">')
                   else:
@@ -592,9 +637,9 @@ def is_conflict(class1):
                   n += 1
 
                   if (stdout == True):
-                     print(k_string*n + '<' + class1.attributes[j].privacy + '>')
+                     print(k_string*n + '<' + privacy + '>')
                   else:
-                     outputfile.write(k_string*n + '<' + class1.attributes[j].privacy + '>\n')
+                     outputfile.write(k_string*n + '<' + privacy + '>\n')
 
                   n += 1 
                   
@@ -606,9 +651,9 @@ def is_conflict(class1):
                   n -= 1
 
                   if (stdout == True):
-                     print(k_string*n + '</' + class1.attributes[j].privacy + '>')
+                     print(k_string*n + '</' + privacy + '>')
                   else:
-                     outputfile.write(k_string*n + '</' + class1.attributes[j].privacy + '>\n')
+                     outputfile.write(k_string*n + '</' + privacy + '>\n')
 
                   n -= 1
 
@@ -634,13 +679,15 @@ def is_conflict(class1):
          for j in range(i+1, len(class1.methods)):
             if (class1.methods[i].name == class1.methods[j].name) and (class1.methods[i].parentcls != class1 and class1.methods[j].parentcls != class1):
                if (conflicts != True):
-                  if (classname == class1.name):
-                     print('methods conflict')
+                  if (classname == class1.name) or (classname == ''):
                      sys.stderr.write('Conflict in inheritance!\n')
                      sys.exit(21)
                   else:
                      return
                else:
+                  for m in class1.methods[i].parentcls.methods:
+                     if (m.name == class1.methods[i].name):
+                        privacy = m.privacy
                   if (stdout == True):
                      print(k_string*n + '<member name="' + class1.methods[i].name + '">')
                   else:
@@ -656,9 +703,9 @@ def is_conflict(class1):
                   n += 1
 
                   if (stdout == True):
-                     print(k_string*n + '<' + class1.methods[i].privacy + '>')
+                     print(k_string*n + '<' + privacy + '>')
                   else:
-                     print(k_string*n + '<' + class1.methods[i].privacy + '>\n')
+                     print(k_string*n + '<' + privacy + '>\n')
 
                   n += 1 
                   
@@ -670,9 +717,9 @@ def is_conflict(class1):
                   n -= 1
 
                   if (stdout == True):
-                     print(k_string*n + '</' + class1.methods[i].privacy + '>')
+                     print(k_string*n + '</' + privacy + '>')
                   else:
-                     outputfile.write(k_string*n + '</' + class1.methods[i].privacy + '>\n')
+                     outputfile.write(k_string*n + '</' + privacy + '>\n')
 
                   n -= 1
 
@@ -692,6 +739,9 @@ def is_conflict(class1):
                   else:
                      conflict_all = True
 
+                  for m in class1.methods[j].parentcls.methods:
+                     if (m.name == class1.methods[j].name):
+                        privacy = m.privacy
                   if (stdout == True):
                      print(k_string*n + '<class name="' + class1.methods[j].parentcls.name + '">')
                   else:
@@ -700,9 +750,9 @@ def is_conflict(class1):
                   n += 1
 
                   if (stdout == True):
-                     print(k_string*n + '<' + class1.methods[j].privacy + '>')
+                     print(k_string*n + '<' + privacy + '>')
                   else:
-                     print(k_string*n + '<' + class1.methods[j].privacy + '>\n')
+                     print(k_string*n + '<' + privacy + '>\n')
 
                   n += 1 
                   
@@ -714,9 +764,9 @@ def is_conflict(class1):
                   n -= 1
 
                   if (stdout == True):
-                     print(k_string*n + '</' + class1.methods[j].privacy + '>')
+                     print(k_string*n + '</' + privacy + '>')
                   else:
-                     outputfile.write(k_string*n + '</' + class1.methods[j].privacy + '>\n')
+                     outputfile.write(k_string*n + '</' + privacy + '>\n')
 
                   n -= 1
 
@@ -739,114 +789,133 @@ def is_conflict(class1):
 
 
 def derivate(input_list, class1, privacy, index):
-   print('derivate')
    global class_list
    global conflicts
+   global passed
+   global meth_list
+   global attr_list
    base_class = ''
 
    for clss in class_list:
-      if (clss.name == input_list[index]):
+      if (clss.name == input_list[index]) and (clss.name != class1.name):
          base_class = clss
          break
 
    if (base_class == ''):
-      sys.stderr.write('Class' + input_list[index] + 'is not defined!\n')
+      sys.stderr.write('Wrong input file formating!\n')
       sys.exit(4)
 
    base_class.privacy = privacy
 
+   for parent in class1.parents:
+      if (parent == base_class):
+         sys.stderr.write('Wrong input file format!\n')
+         sys.exit(4)
    class1.add_parent_class(base_class)
+   
    if (base_class.kind != 'concrete'):
       class1.kind = base_class.kind
 
    for m in base_class.methods:      
       if (privacy == 'public'):
-         if (m.privacy == 'private') and (conflicts != True):
-            continue
+         
+         # if (m.privacy == 'private') and (conflicts != True):
+         #    continue
+         # # elif (m.privacy == 'private'):
+         # #    method1 = Method(m.name, m.mtype, m.parentcls, m.scope, m.privacy, m.pure)
+         # #    method1.privacy = m.privacy
+         # #    class1.add_method(method1)
+         # else:
+         method1 = Method(m.name, m.mtype, m.parentcls, m.scope, m.privacy, m.pure)
+         method1.privacy = m.privacy
+         method1.arguments = m.arguments
+         class1.add_method(method1)
+         if (m.privacy == 'private'):
+            meth_list.append(method1)
+
+      elif (privacy == 'protected'):
+         
+         # if (m.privacy == 'private') and (conflicts != True):
+         #    continue
+
          # elif (m.privacy == 'private'):
          #    method1 = Method(m.name, m.mtype, m.parentcls, m.scope, m.privacy, m.pure)
          #    method1.privacy = m.privacy
+         #    method1.arguments = m.arguments
          #    class1.add_method(method1)
-         else:
-            method1 = Method(m.name, m.mtype, m.parentcls, m.scope, m.privacy, m.pure)
-            method1.privacy = m.privacy
-            method1.arguments = m.arguments
-            class1.add_method(method1)
-
-      elif (privacy == 'protected'):
-         if (m.privacy == 'private') and (conflicts != True):
-            continue
-
-         elif (m.privacy == 'private'):
-            method1 = Method(m.name, m.mtype, m.parentcls, m.scope, m.privacy, m.pure)
-            method1.privacy = m.privacy
-            method1.arguments = m.arguments
-            class1.add_method(method1)
-         else:
-            method1 = Method(m.name, m.mtype, m.parentcls, m.scope, m.privacy, m.pure)
-            method1.privacy = privacy
-            method1.arguments = m.arguments
-            class1.add_method(method1)
-
-      elif (privacy == 'private'):
-         if (m.privacy == 'private'):
-            continue
+         # else:
          method1 = Method(m.name, m.mtype, m.parentcls, m.scope, m.privacy, m.pure)
          method1.privacy = privacy
          method1.arguments = m.arguments
          class1.add_method(method1)
+         if (m.privacy == 'private'):
+            meth_list.append(method1)
+
+      elif (privacy == 'private'):
+        
+         # if (m.privacy == 'private') and (conflicts != True):
+         #    continue
+         method1 = Method(m.name, m.mtype, m.parentcls, m.scope, m.privacy, m.pure)
+         method1.privacy = privacy
+         method1.arguments = m.arguments
+         class1.add_method(method1)
+         if (m.privacy == 'private'):
+            meth_list.append(method1)
 
 
    for attr in base_class.attributes:
       if (privacy == 'public'):
-         if (attr.privacy == 'private') and (conflicts != True):
-            continue
+        
+         # if (attr.privacy == 'private') and (conflicts != True):
+         #    continue
+         # # elif (attr.privacy == 'private'):
+         # #    attr1 = Attribute(attr.name, attr.attype, attr.parentcls, attr.scope, attr.privacy)
+         # #    attr1.privacy = attr.privacy
+         # #    class1.add_attribute(attr1)
+         
+         # else:
+         attr1 = Attribute(attr.name, attr.attype, attr.parentcls, attr.scope, attr.privacy)
+         attr1.privacy = attr.privacy
+         class1.add_attribute(attr1)
+         if (attr.privacy == 'private'):
+            attr_list.append(attr1)
+
+      elif (privacy == 'protected'):
+        
+         # if (attr.privacy == 'private') and (conflicts != True):
+         #    continue
+
          # elif (attr.privacy == 'private'):
          #    attr1 = Attribute(attr.name, attr.attype, attr.parentcls, attr.scope, attr.privacy)
          #    attr1.privacy = attr.privacy
          #    class1.add_attribute(attr1)
-         
-         else:
-            attr1 = Attribute(attr.name, attr.attype, attr.parentcls, attr.scope, attr.privacy)
-            attr1.privacy = attr.privacy
-            class1.add_attribute(attr1)
 
-      elif (privacy == 'protected'):
-         if (attr.privacy == 'private') and (conflicts != True):
-            continue
-
-         elif (attr.privacy == 'private'):
-            attr1 = Attribute(attr.name, attr.attype, attr.parentcls, attr.scope, attr.privacy)
-            attr1.privacy = attr.privacy
-            class1.add_attribute(attr1)
-
-         else:
-            attr1 = Attribute(attr.name, attr.attype, attr.parentcls, attr.scope, attr.privacy)
-            attr1.privacy = privacy
-            class1.add_attribute(attr1)
-
-      elif (privacy == 'private'):
-         if (attr.privacy == 'private'):
-            continue
+         # else:
          attr1 = Attribute(attr.name, attr.attype, attr.parentcls, attr.scope, attr.privacy)
          attr1.privacy = privacy
          class1.add_attribute(attr1)
+         if (attr.privacy == 'private'):
+            attr_list.append(attr1)
 
-#######################################
-   for m in class1.methods:
-      print(m.name)
-      print(m.privacy)
-      print(m.mtype)
+      elif (privacy == 'private'):
+         # if (attr.privacy == 'private') and (conflicts != True):
+         #    continue
+         
+         attr1 = Attribute(attr.name, attr.attype, attr.parentcls, attr.scope, attr.privacy)
+         attr1.privacy = privacy
+         class1.add_attribute(attr1)
+         if (attr.privacy == 'private'):
+            attr_list.append(attr1)
 
-   for attr in class1.attributes:
-      print(attr.name)
-      print(attr.privacy)
-      print(attr.attype)
-########################################
+
+   # print(class1.name)
+   # print(len(class1.attributes))
+   # for a in class1.attributes:
+   #    print(a.name)  
+            
+
 
 def inheritance_privacy(input_list, class1, index):
-   print('inheritance privacy')
-
    privacy = 'private'
    if (input_list[index] == 'public'):
       privacy = 'public'
@@ -865,14 +934,55 @@ def inheritance_privacy(input_list, class1, index):
       return index+1
 
 def declaration(class1, input_list, scope, privacy, virtual, index):
-   print('declaration')
    pureness = 'no'
-
    if (test_type(input_list[index]) != False):
       if (input_list[index+2] == ';'):
          attr1 = Attribute(input_list[index+1], input_list[index], class1, scope, privacy)
+         x = 0
+         length = len(class1.attributes)
+         while (x < length):
+            if (class1.attributes[x].name == attr1.name) and (class1.attributes[x].attype == attr1.attype) and (class1.attributes[x].parentcls == class1):
+               sys.stderr.write('Wrong input file formating!\n')
+               sys.exit(4)
+            elif (class1.attributes[x].name == attr1.name) and (class1.attributes[x].parentcls == class1):
+               sys.stderr.write('Wrong input file formating!\n')
+               sys.exit(4)
+            elif (class1.attributes[x].name == attr1.name) and (class1.attributes[x].attype == attr1.attype) and (class1.attributes[x].parentcls != class1):
+               del class1.attributes[x]
+               length -= 1
+            else:
+               x += 1
+
+         for m in class1.methods:
+            if (m.name == attr1.name):
+               sys.stderr.write('Wrong input file formating!\n')
+               sys.exit(4)
+
          class1.add_attribute(attr1)
          return index+3
+
+      elif (input_list[index+2] == '='):
+         if (input_list[index+4] == ';'):
+            attr1 = Attribute(input_list[index+1], input_list[index], class1, scope, privacy)
+            x = 0
+            length = len(class1.attributes)
+            while (x < length):
+               if (class1.attributes[x].name == attr1.name) and (class1.attributes[x].attype == attr1.attype) and (class1.attributes[x].parentcls == class1):
+                  sys.stderr.write('Wrong input file formating!\n')
+                  sys.exit(4)
+               elif (class1.attributes[x].name == attr1.name) and (class1.attributes[x].attype == attr1.attype) and (class1.attributes[x].parentcls != class1):
+                  del class1.attributes[x]
+                  length -= 1
+               else:
+                  x += 1
+
+            for m in class1.methods:
+               if (m.name == attr1.name):
+                  sys.stderr.write('Wrong input file formating!\n')
+                  sys.exit(4)
+
+            class1.add_attribute(attr1)
+            return index+5
 
       elif (input_list[index+2] == '('):
          method1 = Method(input_list[index+1], input_list[index], class1, scope, privacy)
@@ -884,8 +994,6 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
                continue
 
             if (test_type(input_list[i]) != False):
-               print(input_list[i])
-               print(input_list[i+1])
                arg1 = Argument(input_list[i+1], input_list[i])
                method1.add_argument(arg1)
                if (input_list[i+2] == ','):
@@ -904,6 +1012,11 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
                   if (virtual == 'yes'):   
                      method1.pure = 'yes'
                      class1.kind = 'abstract'
+
+                     for attr in class1.attributes:
+                        if (attr.name == method1.name):
+                           sys.stderr.write('Wrong input file formating!\n')
+                           sys.exit(4)
                   class1.add_method(method1)
                   return i+4
 
@@ -922,11 +1035,24 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
          x = 0
          length = len(class1.methods)
          while (x < length):
-            if (class1.methods[x].name == method1.name) and (class1.methods[x].mtype == method1.mtype):
+            if (class1.methods[x].name == method1.name) and (class1.methods[x].mtype == method1.mtype) and (class1.methods[x].parentcls != class1):
                class1.methods.remove(class1.methods[x])
                length -= 1
+            elif (class1.methods[x].name == method1.name) and (class1.methods[x].mtype == method1.mtype) and (class1.methods[x].parentcls == class1):
+               if (class1.methods[x].arguments) and (method1.arguments):
+                  for arg in class1.methods[x].arguments:
+                     for arg2 in method1.arguments:
+                        if (arg.name == arg2.name) and (arg.argtype == arg2.argtype) and (len(method1.arguments) == len(class1.methods[x].arguments)):  
+                           sys.stderr.write('Wrong input file formating!\n')
+                           sys.exit(4)
+               x += 1
             else:
                x += 1
+
+         for attr in class1.attributes:
+            if (attr.name == method1.name):
+               sys.stderr.write('Wrong input file formating!\n')
+               sys.exit(4)
 
          class1.add_method(method1)
 
@@ -937,7 +1063,6 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
             
          if (pureness != 'yes'):
             class1.kind = 'concrete'
-            
          if (input_list[i+3] != ';'):
             return i+3
          else:
@@ -950,7 +1075,6 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
             sys.stderr.write('Wrong input file formating!\n')
             sys.exit(4)
          return index+5
-
    elif (input_list[index] != '}'):
       sys.stderr.write('Wrong input file formating!\n')
       sys.exit(4)
@@ -958,7 +1082,6 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
    return index
 
 def using(class1, input_list, index, privacy = 'private'):
-   print('using')
    global class_list
    defined = False
 
@@ -994,6 +1117,8 @@ def using(class1, input_list, index, privacy = 'private'):
          elif (input_list[index+3] == class1.attributes[x].name) and (class1.attributes[x].parentcls == clss):
             class1.attributes[x].privacy = privacy
             x += 1
+         else:
+            break
 
    if (clss.methods):
       for m in clss.methods:
@@ -1002,6 +1127,7 @@ def using(class1, input_list, index, privacy = 'private'):
          elif (input_list[index+3] == m.name):
             clss = m.parentcls
             break
+
 
       x = 0
       length = len(class1.methods)
@@ -1012,6 +1138,8 @@ def using(class1, input_list, index, privacy = 'private'):
          elif (input_list[index+3] == class1.methods[x].name) and (class1.methods[x].parentcls == clss):
             class1.methods[x].privacy = privacy
             x += 1
+         else:
+            break
 
    if (input_list[index+4] != ';'):
       sys.stderr.write('Wrong input file formating!\n')
@@ -1020,14 +1148,18 @@ def using(class1, input_list, index, privacy = 'private'):
    return index+5
 
 def body_of_class(class1, input_list, index):
-   print('body of class')
 
    global class_list
+   global privacy_next
 
    scope = 'instance'
    virtual = 'no'
    privacy = 'private'
    defined = False
+
+   if (input_list[index] == '\t'):
+      index += 1
+
 
    if (input_list[index] == 'static'):
       scope = 'static'
@@ -1038,6 +1170,11 @@ def body_of_class(class1, input_list, index):
       if (input_list[index+1] != ':'):
          sys.stderr.write('Wrong input file formating!\n')
          sys.exit(4) 
+      if (input_list[index+2] == '\t'):
+         index += 1
+
+      if(input_list[index+2] == '}'):
+         return index+2
 
       privacy = 'private'
       if (input_list[index+2] == 'virtual'):
@@ -1057,7 +1194,15 @@ def body_of_class(class1, input_list, index):
          sys.stderr.write('Wrong input file formating!\n')
          sys.exit(4) 
 
+      if (input_list[index+2] == '\t'):
+         index += 1
+
+      if(input_list[index+2] == '}'):
+         return index+2
+
       privacy = 'public'
+      privacy_next = 'public'
+      
       if (input_list[index+2] == 'virtual'):
          virtual = 'yes'
          index = declaration(class1, input_list, scope, privacy, virtual, index+3)
@@ -1075,7 +1220,15 @@ def body_of_class(class1, input_list, index):
          sys.stderr.write('Wrong input file formating!\n')
          sys.exit(4) 
 
+      if (input_list[index+2] == '\t'):
+         index += 1
+
+      if(input_list[index+2] == '}'):
+         return index+2
+
       privacy = 'protected'
+      privacy_next = 'protected'
+
       if (input_list[index+2] == 'virtual'):
          virtual = 'yes'
          index = declaration(class1, input_list, scope, privacy, virtual, index+3)
@@ -1098,13 +1251,15 @@ def body_of_class(class1, input_list, index):
       return index
 
    else:
+      if (input_list[index] == '\t'):
+         privacy = privacy_next
+         index += 1
       index = declaration(class1, input_list, scope, privacy, virtual, index)
       return index
 
    
 
 def analysis(input_list):
-   print('som v analysis')
    global class_list
    global conflicts
 
@@ -1148,7 +1303,7 @@ def analysis(input_list):
    return class_list
 
 def word_control(word):
-   
+
    global mystr
    if (word == 'signed'):
       if (mystr == 'none'):
@@ -1178,7 +1333,7 @@ def word_control(word):
          sys.stderr.write('Incompatible type!\n')
          sys.exit(4)
    elif (word == 'int'):
-         if (mystr == 'short') or (mystr == 'long') or (mystr == 'long long') or (mystr == 'unsigned shor') or (mystr == 'unsigned long') or (mystr == 'unsigned long long'): 
+         if (mystr == 'short') or (mystr == 'long') or (mystr == 'long long') or (mystr == 'unsigned short') or (mystr == 'unsigned long') or (mystr == 'unsigned long long') or (mystr == 'unsigned'): 
             mystr += ' ' + word
             return mystr
          elif (mystr == 'none'):
@@ -1242,8 +1397,9 @@ def parsering(input_content):
          
          word = ''
          input_list.append(char)
-      elif (char == '{') or (char == '}') or (char == ';') or (char == '=') or (char.isdigit()):
-         if (word == 'char') or (word == 'char3') or (word == 'char1'):
+
+      elif (char == '{') or (char == '}') or (char == ';') or (char == '=') or (char.isdigit()) or (char == '\t'):
+         if (word == 'char') or (word == 'char3') or (word == 'char1') or (char.isdigit()):
             word += char
             continue
          elif (word != ''):
@@ -1252,7 +1408,7 @@ def parsering(input_content):
                input_list.append(word)
             word = ''
          input_list.append(char)
-      elif (char != '\n') and (char != ' ') and (char != '\t'):
+      elif (char != '\n') and (char != ' '):
          if ((char == ',') or (char == ':')) and (word != ''):
             word = word_control(word)
             if (word != 'next'):
@@ -1282,9 +1438,7 @@ def parsering(input_content):
                del input_list[x+2]
                del input_list[x+1]
          x += 1
-
-   print(input_list)
-
+   # print (input_list)
    class_list = analysis(input_list)
    return class_list
 
@@ -1311,7 +1465,6 @@ def main():
 
    parsed = parser.parse_args()
 
-   print(parsed)
 
    if (parsed.k == []):
       k = 4

@@ -1,12 +1,4 @@
-class A {virtual int f(void) =0;};
-class B : A {
-public:
-    int function(int x, int y) {}
-};
-class C {
-public:
-    int function(int x, int y) {}
-};
-class D : protected B, C {
-  using C::function;
-};
+class A { public: void x(){};  };
+class B { public: void x(){};  };
+class C : public A , public B {};
+class D : C {public: void x(){} };
