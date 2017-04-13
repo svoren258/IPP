@@ -1,4 +1,0 @@
-class A { public: void x(){};  };
-class B { public: void x(){};  };
-class C : public A , public B {};
-class D : C {public: void x(){} };

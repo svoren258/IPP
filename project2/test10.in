@@ -1,10 +1,8 @@
-class A {public: virtual int f(void) =0;};
-class B : protected A {
+class A {virtual int f(void) =0;};
+class B : A {
 public:
-	static int var;
+    int var;
 };
 class C {};
-class D : B, public C {
-protected:
-	using B::var;
+class D : protected B, C {
 };

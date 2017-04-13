@@ -1,9 +1,10 @@
 class A {
 public:
-	int var;
+    int var;
 };
 class B {
-	float var;
+    float var;
 };
 
-class C:A,B{};
+class C : public A, public B {
+};

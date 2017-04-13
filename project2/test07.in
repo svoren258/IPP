@@ -1,10 +1,11 @@
-class A {private:virtual int f(void) = 0; };
+class A {virtual int f(void) =0;};
 class B : A {
 public:
-	int var;
+    int var;
+    virtual int f(void){}
 };
-class C : A { };
+class C : A {};
 class D : public B, C {
 public:
-	virtual int f(void) {};
+    virtual int f(void){}
 };

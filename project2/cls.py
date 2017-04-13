@@ -6,6 +6,7 @@ details_all = False
 conflicts = False
 classname = ''
 
+args = False
 private = False
 public = False
 protected = False
@@ -65,6 +66,8 @@ class Method(object):
       self.arguments = []
       self.parentcls = parentcls
       self.is_parent = False
+      self.virtual = False
+      self.constOrDest = False
 
    def add_argument(self, argument):
       self.arguments.append(argument) 
@@ -100,12 +103,16 @@ def details_output(classname, methorattr, mthattr, privacy, n, k_string, stdout,
    global protected
    global meth_list
    global attr_list
-
+   global args
 
    mylist = []
    for i in range(len(methorattr)):
-      if (methorattr[i].privacy == privacy):
-         mylist.append(methorattr[i])
+      if (mthattr == 'methods'):
+         if (methorattr[i].privacy == privacy) and ((methorattr[i].constOrDest != True) or (methorattr[i].name == classname) or (methorattr[i].name == '~' + classname)):
+            mylist.append(methorattr[i])
+      else:
+         if (methorattr[i].privacy == privacy):
+            mylist.append(methorattr[i])
 
    if (mthattr == 'methods'):
       if mylist:
@@ -139,38 +146,50 @@ def details_output(classname, methorattr, mthattr, privacy, n, k_string, stdout,
                      print (k_string*n + '<from name="' + method.parentcls.name + '"/>')
                      n -= 1
                   n += 1
-                  print(k_string*n + '<virtual pure="' + method.pure + '"/>')
+                  if (method.virtual == True):
+                     print(k_string*n + '<virtual pure="' + method.pure + '"/>')
                   
 
-               else:
+               elif (stdout == False):
                   outputfile.write(k_string*n + '<method name="' + method.name + '" type="' + method.mtype + '" scope="' + method.scope + '">\n')
                   n += 1
                   if (method.parentcls.name != classname):
                      n += 1
                      outputfile.write(k_string*n + '<from name="' + method.parentcls.name + '"/>\n')
                      # n -= 1
-                  outputfile.write(k_string*n + '<virtual pure="' + method.pure + '"/>\n')
+                  if (method.virtual == True):
+                     outputfile.write(k_string*n + '<virtual pure="' + method.pure + '"/>\n')
                   
                
                if method.arguments:
+                  args = True
                   if(stdout == True):
+                     
                      print (k_string*n + '<arguments>')   
                   else:
+                     
                      outputfile.write(k_string*n + '<arguments>\n')
                   n += 1
                   for arg in method.arguments:
                      
                      if (stdout == True):
-                        print(k_string*n + '<argument name="' + arg.name + '" type="' + arg.argtype +'">')
+                        print(k_string*n + '<argument name="' + arg.name + '" type="' + arg.argtype +'"/>')
                      else:
-                        outputfile.write(k_string*n + '<argument name="' + arg.name + '" type="' + arg.argtype +'">\n')
+                        outputfile.write(k_string*n + '<argument name="' + arg.name + '" type="' + arg.argtype +'"/>\n')
                   n -= 1
                   
                
-               if(stdout == True):
-                  print (k_string*n + '<arguments/>')
+               if (args == True):
+                  args = False
+                  if(stdout == True):
+                     print (k_string*n + '</arguments>')
+                  else:
+                     outputfile.write(k_string*n + '</arguments>\n')
                else:
-                  outputfile.write(k_string*n + '<arguments/>\n')
+                  if(stdout == True):
+                     print (k_string*n + '<arguments/>')
+                  else:
+                     outputfile.write(k_string*n + '<arguments/>\n')
 
                n -= 1
                if(stdout == True):
@@ -189,45 +208,33 @@ def details_output(classname, methorattr, mthattr, privacy, n, k_string, stdout,
          
          if (privacy == 'private') and (private == False):
             mylist = list(set(mylist) - set(attr_list))
-            # length = len(mylist)
-            # x = 0
-            # while (x < length):
-            #    if (mylist[x].parentcls.name != classname):
-            #       del mylist[x]
-            #       length -= 1
-            #    else:
-            #       x += 1
 
-            # if not mylist:
-            #    return
-            private = True 
-            if (stdout == True):
-               print(k_string*n + '<' + privacy + '>')
-            else:
-               outputfile.write(k_string*n + '<' + privacy + '>\n')
+            if mylist:
+               private = True 
+               if (stdout == True):
+                  print(k_string*n + '<' + privacy + '>')
+               else:
+                  outputfile.write(k_string*n + '<' + privacy + '>\n')
          elif (privacy == 'protected') and (protected == False):
             mylist = list(set(mylist) - set(attr_list))
-            protected = True
-            if (stdout == True):
-               print(k_string*n + '<' + privacy + '>')
-            else:
-               outputfile.write(k_string*n + '<' + privacy + '>\n')
+            if mylist:
+               protected = True
+               if (stdout == True):
+                  print(k_string*n + '<' + privacy + '>')
+               else:
+                  outputfile.write(k_string*n + '<' + privacy + '>\n')
 
          elif (privacy == 'public') and (public == False):
             mylist = list(set(mylist) - set(attr_list))
-            public = True
-            if (stdout == True):
-               print(k_string*n + '<' + privacy + '>')
-            else:
-               outputfile.write(k_string*n + '<' + privacy + '>\n')
+            if mylist:
+               public = True
+               if (stdout == True):
+                  print(k_string*n + '<' + privacy + '>')
+               else:
+                  outputfile.write(k_string*n + '<' + privacy + '>\n')
 
          if (mylist):
-            # if (stdout == True) and :
-            #    print(k_string*n + '<' + privacy + '>')
-               
-            # else:
-            #    outputfile.write(k_string*n + '<' + privacy + '>\n')
-               
+
             n += 1   
             if(stdout == True):
                print(k_string*n + '<attributes>')
@@ -235,25 +242,29 @@ def details_output(classname, methorattr, mthattr, privacy, n, k_string, stdout,
                outputfile.write(k_string*n + '<attributes>\n')
             n += 1
             for attr in mylist:
-               if (stdout == True) and (attr.privacy == privacy):
+               if (stdout == True) and (attr.privacy == privacy) and (attr.parentcls.name != classname):
                   print (k_string*n + '<attribute name="' + attr.name + '" type="' + attr.attype + '" scope="' + attr.scope + '">')
-                  
-                  if (attr.parentcls.name != classname):
-                     n += 1
-                     print (k_string*n + '<from name="' + attr.parentcls.name + '"/>')
-                     n -= 1
-               else:
+                  n += 1
+                  print (k_string*n + '<from name="' + attr.parentcls.name + '"/>')
+                  n -= 1
+               elif (stdout == True) and (attr.privacy == privacy):
+                   print (k_string*n + '<attribute name="' + attr.name + '" type="' + attr.attype + '" scope="' + attr.scope + '"/>')
+               
+               elif (stdout == False) and (attr.privacy == privacy) and (attr.parentcls.name != classname):
                   outputfile.write(k_string*n + '<attribute name="' + attr.name + '" type="' + attr.attype + '" scope="' + attr.scope + '">\n')
-                  if (attr.parentcls.name != classname):
-                     n += 1
-                     outputfile.write(k_string*n + '<from name="' + attr.parentcls.name + '"/>\n')
-                     n -= 1
+                  n += 1
+                  outputfile.write(k_string*n + '<from name="' + attr.parentcls.name + '"/>\n')
+                  n -= 1
+               elif (stdout == False) and (attr.privacy == privacy):
+                  outputfile.write(k_string*n + '<attribute name="' + attr.name + '" type="' + attr.attype + '" scope="' + attr.scope + '"/>\n')
             
                
                if(stdout == True):
-                  print(k_string*n + '</attribute>')
+                  if (attr.parentcls.name != classname):
+                     print(k_string*n + '</attribute>')
                else:
-                  outputfile.write(k_string*n + '</attribute>\n')
+                  if (attr.parentcls.name != classname):
+                     outputfile.write(k_string*n + '</attribute>\n')
             n -= 1
             if (stdout == True):
                print(k_string*n + '</attributes>')
@@ -301,9 +312,15 @@ def output(stdout, outputfilename, k, class_list, classname = ''):
          print ('<?xml version="1.0" encoding="UTF-8"?>')
          print ('<model>')
       else:
-         outputfile = open(outputfilename, 'w')
-         outputfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-         outputfile.write('<model>\n')
+         try:
+            outputfile = open(outputfilename, 'w')
+         except IOError:
+            sys.stderr.write('Error opening output file!\n')
+            sys.exit(3)
+         else: 
+            #outputfile = open(outputfilename, 'w')
+            outputfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+            outputfile.write('<model>\n')
 
       for i in range(len(class_list)):
          if not class_list[i].parents:
@@ -340,15 +357,20 @@ def output(stdout, outputfilename, k, class_list, classname = ''):
          print ('<?xml version="1.0" encoding="UTF-8"?>')
          print ('<model>')
       else:
-         outputfile = open(outputfilename, 'w')
-         outputfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-         outputfile.write('<model>')
+         try:
+            outputfile = open(outputfilename, 'w')
+         except IOError:
+            sys.stderr.write('Error opening output file!\n')
+            sys.exit(3)
+         else: 
+            #outputfile = open(outputfilename, 'w')
+            outputfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+            outputfile.write('<model>')
       
       for clss in class_list:
          if (stdout == True):
             print(k_string*n + '<class name="' + clss.name + '" kind="' + clss.kind + '">')
          else:
-            # outputfile = open(outputfilename, 'w')
             outputfile.write(k_string*n + '<class name="' + clss.name + '" kind="' + clss.kind + '">\n')
 
          n += 1
@@ -444,9 +466,15 @@ def output(stdout, outputfilename, k, class_list, classname = ''):
             print ('<?xml version="1.0" encoding="UTF-8"?>')
             print('<class name="' + classname + '" kind="' + class_list[i].kind + '">')
          else:
-            outputfile = open(outputfilename, 'w')
-            outputfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-            outputfile.write('<class name="' + classname + '" kind="' + class_list[i].kind + '">\n')
+            try:
+               outputfile = open(outputfilename, 'w')
+            except IOError:
+               sys.stderr.write('Error opening output file!\n')
+               sys.exit(3)
+            else: 
+               #outputfile = open(outputfilename, 'w')
+               outputfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+               outputfile.write('<class name="' + classname + '" kind="' + class_list[i].kind + '">\n')
 
          if (class_list[i].parents):
             if (stdout == True):
@@ -472,7 +500,7 @@ def output(stdout, outputfilename, k, class_list, classname = ''):
                   print (k_string*n + '<conflicts>')   
                else:
                   outputfile.write(k_string*n + '<conflicts>\n')
-                     
+
                is_conflict(class_list[i])
 
                if (stdout == True):
@@ -521,13 +549,24 @@ def output(stdout, outputfilename, k, class_list, classname = ''):
          if (stdout == True):
             print ('<?xml version="1.0" encoding="UTF-8"?>')
          else:
-            outputfile = open(outputfilename, 'w')
-            outputfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-            outputfile.close()
+            try:
+               outputfile = open(outputfilename, 'w')
+            except IOError:
+               sys.stderr.write('Error opening output file!\n')
+               sys.exit(3)
+            else: 
+               #outputfile = open(outputfilename, 'w')
+               outputfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+               outputfile.close()
 
 
 def test_type(string):
-   types = ['int', 'int *', 'int&',
+   global class_list
+   is_def = False
+   types = ['A','B','C','D',
+            'A *','B *','C *','D *',
+            'A &','B &','C &','D &',
+            'int', 'int *', 'int &',
            'float', 'float *', 'float &', 
            'double', 'double *', 'double &',
            'long double', 'long double *', 'long double &', 'void', 'void *', 'void &',
@@ -541,6 +580,21 @@ def test_type(string):
            'unsigned int &', 'unsigned long int', 'unsigned long int *', 'unsigned long int &',
            'unsigned long long int', 'unsigned long long int *', 'unsigned long long int &']
 
+   classes = ['A','B','C','D',
+            'A *','B *','C *','D *',
+            'A &','B &','C &','D &',]
+
+   for classname in classes:
+      if (string == classname):
+         for clss in class_list:
+            if (clss.name == string):
+               is_def = True
+               break
+         if (is_def == False):
+            sys.stderr.write('Wrong input file formating!\n')
+            sys.exit(4)      
+
+
    for t in types:
       if (string == t):
          return t
@@ -548,6 +602,7 @@ def test_type(string):
    return False
 
 def is_conflict(class1):
+
    global conflicts
    global outputfile
    global k
@@ -557,6 +612,13 @@ def is_conflict(class1):
 
    k_string = k * ' '
    n = 2
+
+   if (class1.attributes) and (class1.methods):
+      for attr in class1.attributes:
+         for meth in class1.methods:
+            if (attr.name == meth.name):
+               sys.stderr.write('Conflict in inheritance!\n')
+               sys.exit(21)
 
    if (class1.attributes) and (len(class1.attributes) != 1):
       for i in range(len(class1.attributes)-1):
@@ -676,8 +738,12 @@ def is_conflict(class1):
 
    if (class1.methods) and (len(class1.methods) != 1):
       for i in range(len(class1.methods)):
+         if (class1.methods[i].constOrDest == True):
+            continue
          for j in range(i+1, len(class1.methods)):
-            if (class1.methods[i].name == class1.methods[j].name) and (class1.methods[i].parentcls != class1 and class1.methods[j].parentcls != class1):
+            if (class1.methods[j].constOrDest == True):
+               continue
+            if (class1.methods[i].name == class1.methods[j].name) and (class1.methods[i].parentcls != class1) and (class1.methods[j].parentcls != class1) and (len(class1.methods[i].arguments) == len(class1.methods[j].arguments)):
                if (conflicts != True):
                   if (classname == class1.name) or (classname == ''):
                      sys.stderr.write('Conflict in inheritance!\n')
@@ -705,7 +771,7 @@ def is_conflict(class1):
                   if (stdout == True):
                      print(k_string*n + '<' + privacy + '>')
                   else:
-                     print(k_string*n + '<' + privacy + '>\n')
+                     outputfile.write(k_string*n + '<' + privacy + '>\n')
 
                   n += 1 
                   
@@ -713,6 +779,42 @@ def is_conflict(class1):
                      print(k_string*n + '<method name="' + class1.methods[i].name + '" type="' + class1.methods[i].mtype + '" scope="' + class1.methods[i].scope + '"/>')
                   else:
                      outputfile.write(k_string*n + '<method name="' + class1.methods[i].name + '" type="' + class1.methods[i].mtype + '" scope="' + class1.methods[i].scope + '"/>\n')
+
+                  if class1.methods[i].arguments:
+                     n += 1
+                     if (stdout == True):
+                        print(k_string*n + '<arguments>')
+                     else:
+                        outputfile.write(k_string*n + '<arguments>\n')
+                     for arg in class1.methods[i].arguments:
+                        n += 1
+                        if (stdout == True):
+                           print(k_string*n + '<argument name="' + arg.name + '" type="' + arg.argtype + '"/>' )
+                        else:
+                           outputfile.write(k_string*n + '<argument name="' + arg.name + '" type="' + arg.argtype + '"/>\n')
+                        n -= 1
+
+                     if (stdout == True):
+                        print(k_string*n + '</arguments>')
+                     else:
+                        outputfile.write(k_string*n + '</arguments>\n')
+
+
+                  else:
+                     n += 1
+                     if (stdout == True):
+                        print(k_string*n + '<arguments/>')
+                     else:
+                        outputfile.write(k_string*n + '<arguments/>\n')
+                     n -=1
+
+
+                  n -= 1
+                  if (stdout == True):
+                     print(k_string*n + '</method>')
+                  else:
+                     outputfile.write(k_string*n + '</method>\n')
+
 
                   n -= 1
 
@@ -752,7 +854,7 @@ def is_conflict(class1):
                   if (stdout == True):
                      print(k_string*n + '<' + privacy + '>')
                   else:
-                     print(k_string*n + '<' + privacy + '>\n')
+                     outputfile.write(k_string*n + '<' + privacy + '>\n')
 
                   n += 1 
                   
@@ -760,6 +862,42 @@ def is_conflict(class1):
                      print(k_string*n + '<method name="' + class1.methods[j].name + '" type="' + class1.methods[i].mtype + '" scope="' + class1.methods[i].scope + '"/>')
                   else:
                      outputfile.write(k_string*n + '<method name="' + class1.methods[j].name + '" type="' + class1.methods[i].mtype + '" scope="' + class1.methods[i].scope + '"/>\n')
+
+                  if class1.methods[j].arguments:
+                     n += 1
+                     if (stdout == True):
+                        print(k_string*n + '<arguments>')
+                     else:
+                        outputfile.write(k_string*n + '<arguments>\n')
+                     for arg in class1.methods[j].arguments:
+                        n += 1
+                        if (stdout == True):
+                           print(k_string*n + '<argument name="' + arg.name + '" type="' + arg.argtype + '"/>' )
+                        else:
+                           outputfile.write(k_string*n + '<argument name="' + arg.name + '" type="' + arg.argtype + '"/>\n')
+                        n -= 1
+
+                     if (stdout == True):
+                        print(k_string*n + '</arguments>')
+                     else:
+                        outputfile.write(k_string*n + '</arguments>\n')
+
+
+                  else:
+                     n += 1
+                     if (stdout == True):
+                        print(k_string*n + '<arguments/>')
+                     else:
+                        outputfile.write(k_string*n + '<arguments/>\n')
+                     n -=1
+
+
+                  n -= 1
+                  if (stdout == True):
+                     print(k_string*n + '</method>')
+                  else:
+                     outputfile.write(k_string*n + '</method>\n')
+
 
                   n -= 1
 
@@ -786,6 +924,9 @@ def is_conflict(class1):
                      class1.methods.remove(class1.methods[j])
                      class1.methods.remove(class1.methods[i])
                      conflict_all = False
+
+                  if not class1.methods:
+                     return
 
 
 def derivate(input_list, class1, privacy, index):
@@ -828,7 +969,9 @@ def derivate(input_list, class1, privacy, index):
          # else:
          method1 = Method(m.name, m.mtype, m.parentcls, m.scope, m.privacy, m.pure)
          method1.privacy = m.privacy
+         method1.virtual = m.virtual
          method1.arguments = m.arguments
+         method1.constOrDest = m.constOrDest
          class1.add_method(method1)
          if (m.privacy == 'private'):
             meth_list.append(method1)
@@ -846,7 +989,9 @@ def derivate(input_list, class1, privacy, index):
          # else:
          method1 = Method(m.name, m.mtype, m.parentcls, m.scope, m.privacy, m.pure)
          method1.privacy = privacy
+         method1.virtual = m.virtual
          method1.arguments = m.arguments
+         method1.constOrDest = m.constOrDest
          class1.add_method(method1)
          if (m.privacy == 'private'):
             meth_list.append(method1)
@@ -857,7 +1002,9 @@ def derivate(input_list, class1, privacy, index):
          #    continue
          method1 = Method(m.name, m.mtype, m.parentcls, m.scope, m.privacy, m.pure)
          method1.privacy = privacy
+         method1.virtual = m.virtual
          method1.arguments = m.arguments
+         method1.constOrDest = m.constOrDest
          class1.add_method(method1)
          if (m.privacy == 'private'):
             meth_list.append(method1)
@@ -940,23 +1087,25 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
          attr1 = Attribute(input_list[index+1], input_list[index], class1, scope, privacy)
          x = 0
          length = len(class1.attributes)
-         while (x < length):
-            if (class1.attributes[x].name == attr1.name) and (class1.attributes[x].attype == attr1.attype) and (class1.attributes[x].parentcls == class1):
-               sys.stderr.write('Wrong input file formating!\n')
-               sys.exit(4)
-            elif (class1.attributes[x].name == attr1.name) and (class1.attributes[x].parentcls == class1):
-               sys.stderr.write('Wrong input file formating!\n')
-               sys.exit(4)
-            elif (class1.attributes[x].name == attr1.name) and (class1.attributes[x].attype == attr1.attype) and (class1.attributes[x].parentcls != class1):
-               del class1.attributes[x]
-               length -= 1
-            else:
-               x += 1
+         if (length != 0):
+            while (x < length):
+               if (class1.attributes[x].name == attr1.name) and (class1.attributes[x].attype == attr1.attype) and (class1.attributes[x].parentcls == class1):
+                  sys.stderr.write('Wrong input file formating!\n')
+                  sys.exit(4)
+               elif (class1.attributes[x].name == attr1.name) and (class1.attributes[x].parentcls == class1):
+                  sys.stderr.write('Wrong input file formating!\n')
+                  sys.exit(4)
+               elif (class1.attributes[x].name == attr1.name) and (class1.attributes[x].attype == attr1.attype) and (class1.attributes[x].parentcls != class1):
+                  del class1.attributes[x]
+                  length -= 1
+               else:
+                  x += 1
 
-         for m in class1.methods:
-            if (m.name == attr1.name):
-               sys.stderr.write('Wrong input file formating!\n')
-               sys.exit(4)
+         if class1.methods:
+            for m in class1.methods:
+               if (m.name == attr1.name):
+                  sys.stderr.write('Wrong input file formating!\n')
+                  sys.exit(4)
 
          class1.add_attribute(attr1)
          return index+3
@@ -986,6 +1135,8 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
 
       elif (input_list[index+2] == '('):
          method1 = Method(input_list[index+1], input_list[index], class1, scope, privacy)
+         if (virtual == 'yes'):
+            method1.virtual = True
          i = index+3
 
          while (input_list[i] != ')'):
@@ -1011,12 +1162,16 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
                if (input_list[i+3] == ';'):
                   if (virtual == 'yes'):   
                      method1.pure = 'yes'
+                     method1.virtual = True
                      class1.kind = 'abstract'
 
                      for attr in class1.attributes:
                         if (attr.name == method1.name):
                            sys.stderr.write('Wrong input file formating!\n')
                            sys.exit(4)
+                  else:
+                     sys.stderr.write('Wrong input file formating!\n')
+                     sys.exit(4)
                   class1.add_method(method1)
                   return i+4
 
@@ -1053,7 +1208,7 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
             if (attr.name == method1.name):
                sys.stderr.write('Wrong input file formating!\n')
                sys.exit(4)
-
+         
          class1.add_method(method1)
 
          for m in class1.methods:
@@ -1075,6 +1230,84 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
             sys.stderr.write('Wrong input file formating!\n')
             sys.exit(4)
          return index+5
+
+   elif (input_list[index] == class1.name):
+      if (input_list[index+1] != '('):
+         sys.stderr.write('Wrong input file formating!\n')
+         sys.exit(4)
+      constructor = Method(input_list[index], 'void', class1, scope, privacy)
+      constructor.constOrDest = True
+      i = index + 2 
+      while (input_list[i] != ')'):
+         if (input_list[i] == 'void'):
+            i += 1
+            continue
+
+         if (test_type(input_list[i]) != False):
+            arg1 = Argument(input_list[i+1], input_list[i])
+            constructor.add_argument(arg1)
+            if (input_list[i+2] == ','):
+               i = i + 3
+            elif (input_list[i+2] == ')'):
+               i = i + 2
+               break 
+            else:
+               sys.stderr.write('Wrong input file formating!\n')
+               sys.exit(4)
+
+      if (input_list[i+1] == '{'):
+         if (input_list[i+2] != '}'):
+            sys.stderr.write('Wrong input file formating!\n')
+            sys.exit(4)
+         class1.add_method(constructor)
+         if (input_list[i+3] == ';'):
+            return i+4
+         else:
+            return i+3
+      elif (input_list[i+1] == ';'):
+         class1.add_method(constructor)
+         return i+2
+      else:
+         sys.stderr.write('Wrong input file formating!\n')
+         sys.exit(4)
+
+   elif (input_list[index] == '~'):
+      if (input_list[index+1] != class1.name):
+         sys.stderr.write('Wrong input file formating!\n')
+         sys.exit(4)
+      if (input_list[index+2] != '('):
+         sys.stderr.write('Wrong input file formating!\n')
+         sys.exit(4)
+      if (input_list[index+3] != ')'):
+         sys.stderr.write('Wrong input file formating!\n')
+         sys.exit(4)   
+
+      destructor = Method(input_list[index] + input_list[index+1], 'void', class1, scope, privacy)
+      destructor.constOrDest = True
+      if (input_list[index+4] == '{'):
+         if (input_list[index+5] != '}'):
+            sys.stderr.write('Wrong input file formating!\n')
+            sys.exit(4)
+         for m in class1.methods:
+            if (m.name == destructor.name):
+               sys.stderr.write('Wrong input file formating!\n')
+               sys.exit(4)
+         class1.add_method(destructor)
+         if (input_list[index+6] == ';'):
+            return index+7
+         else:
+            return index+6
+      elif (input_list[index+4] == ';'):
+         for m in class1.methods:
+            if (m.name == destructor.name):
+               sys.stderr.write('Wrong input file formating!\n')
+               sys.exit(4)
+         class1.add_method(destructor)
+         return index+5
+      else:
+         sys.stderr.write('Wrong input file formating!\n')
+         sys.exit(4)
+
    elif (input_list[index] != '}'):
       sys.stderr.write('Wrong input file formating!\n')
       sys.exit(4)
@@ -1084,7 +1317,6 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
 def using(class1, input_list, index, privacy = 'private'):
    global class_list
    defined = False
-
    for clss in class_list:
       if (input_list[index] == clss.name):
          defined = True
@@ -1114,14 +1346,15 @@ def using(class1, input_list, index, privacy = 'private'):
          if (input_list[index+3] == class1.attributes[x].name) and (class1.attributes[x].parentcls != clss):
             class1.attributes.remove(class1.attributes[x])
             length -= 1
+            continue
          elif (input_list[index+3] == class1.attributes[x].name) and (class1.attributes[x].parentcls == clss):
             class1.attributes[x].privacy = privacy
-            x += 1
-         else:
-            break
+         x += 1
+
 
    if (clss.methods):
       for m in clss.methods:
+
          if (m.parentcls.name == clss.name) and (input_list[index+3] == m.name):
             break
          elif (input_list[index+3] == m.name):
@@ -1135,15 +1368,16 @@ def using(class1, input_list, index, privacy = 'private'):
          if (input_list[index+3] == class1.methods[x].name) and (class1.methods[x].parentcls != clss):
             class1.methods.remove(class1.methods[x])
             length -= 1
+            continue
          elif (input_list[index+3] == class1.methods[x].name) and (class1.methods[x].parentcls == clss):
             class1.methods[x].privacy = privacy
-            x += 1
-         else:
-            break
+         x += 1
+
 
    if (input_list[index+4] != ';'):
       sys.stderr.write('Wrong input file formating!\n')
       sys.exit(4)
+
 
    return index+5
 
@@ -1160,9 +1394,10 @@ def body_of_class(class1, input_list, index):
    if (input_list[index] == '\t'):
       index += 1
 
-
    if (input_list[index] == 'static'):
       scope = 'static'
+      if (privacy == 'private'):
+         privacy = privacy_next
       index = declaration(class1, input_list, scope, privacy, virtual, index+1)
       return index
 
@@ -1220,14 +1455,22 @@ def body_of_class(class1, input_list, index):
          sys.stderr.write('Wrong input file formating!\n')
          sys.exit(4) 
 
+      privacy = 'protected'
+      privacy_next = 'protected'
+
+      if (input_list[index+2] == 'private'):
+         if (input_list[index+3] ==  ':'):
+            privacy = 'private'
+            index = index+2
+
       if (input_list[index+2] == '\t'):
          index += 1
 
       if(input_list[index+2] == '}'):
          return index+2
 
-      privacy = 'protected'
-      privacy_next = 'protected'
+      # privacy = 'protected'
+      # privacy_next = 'protected'
 
       if (input_list[index+2] == 'virtual'):
          virtual = 'yes'
@@ -1251,9 +1494,8 @@ def body_of_class(class1, input_list, index):
       return index
 
    else:
-      if (input_list[index] == '\t'):
+      if (privacy == 'private'):
          privacy = privacy_next
-         index += 1
       index = declaration(class1, input_list, scope, privacy, virtual, index)
       return index
 
@@ -1262,6 +1504,7 @@ def body_of_class(class1, input_list, index):
 def analysis(input_list):
    global class_list
    global conflicts
+   global privacy_next
 
    i = 0
    while (i < len(input_list)):
@@ -1288,6 +1531,8 @@ def analysis(input_list):
          elif (input_list[i+2] != '{'):
             sys.stderr.write('Syntax error!\n')
             sys.exit(4)
+
+         privacy_next = 'private'
          index = body_of_class(class1, input_list, i+3)
          while (input_list[index] != '}'):
             index = body_of_class(class1, input_list, index)
@@ -1305,6 +1550,7 @@ def analysis(input_list):
 def word_control(word):
 
    global mystr
+   
    if (word == 'signed'):
       if (mystr == 'none'):
          mystr = word
@@ -1380,7 +1626,7 @@ def word_control(word):
 def parsering(input_content):
    word = ''
    input_list = []
-   types = ['bool','char','char16_t','char32_t','wchar_t','signed char','short int','int','long int','long long int','unsigned char','unsigned short int','unsigned int','unsigned long int','unsigned long long int','float','double','long double','void']
+   types = ['A','B','C','D','bool','char','char16_t','char32_t','wchar_t','signed char','short int','int','long int','long long int','unsigned char','unsigned short int','unsigned int','unsigned long int','unsigned long long int','float','double','long double','void']
    
    for char in input_content:
       if ((char == '\n') or (char == ' ')) and (word != ''):
@@ -1398,7 +1644,7 @@ def parsering(input_content):
          word = ''
          input_list.append(char)
 
-      elif (char == '{') or (char == '}') or (char == ';') or (char == '=') or (char.isdigit()) or (char == '\t'):
+      elif (char == '{') or (char == '}') or (char == ';') or (char == '=') or (char.isdigit()) or (char == '\t') or (char == '~'):
          if (word == 'char') or (word == 'char3') or (word == 'char1') or (char.isdigit()):
             word += char
             continue
@@ -1424,21 +1670,24 @@ def parsering(input_content):
 
    for t in types:
       x = 0
-      while(x < len(input_list)): 
+      length = len(input_list)
+      while(x < length): 
          if (t == input_list[x]):
             if (input_list[x+1] == '*'):
                word = input_list[x] + ' *'
                input_list.insert(x, word)
                del input_list[x+2]
                del input_list[x+1]
-               break
+               length -= 1
+
             elif (input_list[x+1] == '&'):
-               word = input_list[x] + ' ' + input_list[x+1]
+               word = input_list[x] + ' &'
                input_list.insert(x, word)
                del input_list[x+2]
                del input_list[x+1]
+               length -= 1
          x += 1
-   # print (input_list)
+
    class_list = analysis(input_list)
    return class_list
 
@@ -1454,16 +1703,20 @@ def main():
    outputfilename = ''
    
    stdin = True
-
+   
    parser = argparse.ArgumentParser()
-
+   
    parser.add_argument('-i', '--input=', dest='input')
    parser.add_argument('-o', '--output=', dest='output')
    parser.add_argument('--details', action='store', nargs='*', dest='details')
    parser.add_argument('--pretty-xml', dest='k', nargs='*', action='store')
    parser.add_argument('--conflicts', dest='conflicts', action='store_true')
 
-   parsed = parser.parse_args()
+
+   try:
+      parsed = parser.parse_args()
+   except SystemExit:
+      sys.exit(1)
 
 
    if (parsed.k == []):
@@ -1480,6 +1733,11 @@ def main():
       classname = parsed.details[0]
       if (parsed.conflicts == True):
          conflicts = True
+   
+   elif (parsed.details == None):
+      if (parsed.conflicts == True):
+         sys.stderr.write('Wrong parameters formating!\n')
+         sys.exit(1)
 
    if (parsed.input):
       inputfilename = parsed.input
@@ -1494,9 +1752,14 @@ def main():
       stdout = True
 
    if (stdin == False):
-      inputfile = open(inputfilename, 'r')
-      input_content = inputfile.read()
-
+      try:
+         inputfile = open(inputfilename, 'r')
+      except IOError:
+         sys.stderr.write('Error opening input file!\n')
+         sys.exit(2)
+      else:
+         inputfile = open(inputfilename, 'r')
+         input_content = inputfile.read()
    else:
       input_content = sys.stdin.read()
 

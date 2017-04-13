@@ -1,9 +1,8 @@
-class A {
-	bool a;
+class A {virtual int f(void) =0;};
+class B : A {
 public:
-	float aa;
+    int var;
 };
-
-class B : public A {
-	int *b;
+class C {};
+class D : protected B, C {
 };

@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<class kind="concrete" name="E">
+    <inheritance>
+        <from name="D" privacy="public"/>
+    </inheritance>
+</class>
