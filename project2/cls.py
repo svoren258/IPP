@@ -294,7 +294,6 @@ def next(classname, k_string, n, class_list, stdout, outputfile):
 
 def output(stdout, outputfilename, k, class_list, classname = ''):
 
-   #global defined_class
    isdef = False
    mylist = []
    k_string = int(k) * ' '
@@ -318,7 +317,6 @@ def output(stdout, outputfilename, k, class_list, classname = ''):
             sys.stderr.write('Error opening output file!\n')
             sys.exit(3)
          else: 
-            #outputfile = open(outputfilename, 'w')
             outputfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             outputfile.write('<model>\n')
 
@@ -363,7 +361,6 @@ def output(stdout, outputfilename, k, class_list, classname = ''):
             sys.stderr.write('Error opening output file!\n')
             sys.exit(3)
          else: 
-            #outputfile = open(outputfilename, 'w')
             outputfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             outputfile.write('<model>')
       
@@ -472,7 +469,6 @@ def output(stdout, outputfilename, k, class_list, classname = ''):
                sys.stderr.write('Error opening output file!\n')
                sys.exit(3)
             else: 
-               #outputfile = open(outputfilename, 'w')
                outputfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
                outputfile.write('<class name="' + classname + '" kind="' + class_list[i].kind + '">\n')
 
@@ -555,7 +551,6 @@ def output(stdout, outputfilename, k, class_list, classname = ''):
                sys.stderr.write('Error opening output file!\n')
                sys.exit(3)
             else: 
-               #outputfile = open(outputfilename, 'w')
                outputfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
                outputfile.close()
 
@@ -582,17 +577,18 @@ def test_type(string):
 
    classes = ['A','B','C','D',
             'A *','B *','C *','D *',
-            'A &','B &','C &','D &',]
+            'A &','B &','C &','D &']
+
 
    for classname in classes:
       if (string == classname):
          for clss in class_list:
-            if (clss.name == string):
+            if (clss.name in string):
                is_def = True
                break
          if (is_def == False):
             sys.stderr.write('Wrong input file formating!\n')
-            sys.exit(4)      
+            sys.exit(4)    
 
 
    for t in types:
@@ -959,14 +955,7 @@ def derivate(input_list, class1, privacy, index):
 
    for m in base_class.methods:      
       if (privacy == 'public'):
-         
-         # if (m.privacy == 'private') and (conflicts != True):
-         #    continue
-         # # elif (m.privacy == 'private'):
-         # #    method1 = Method(m.name, m.mtype, m.parentcls, m.scope, m.privacy, m.pure)
-         # #    method1.privacy = m.privacy
-         # #    class1.add_method(method1)
-         # else:
+
          method1 = Method(m.name, m.mtype, m.parentcls, m.scope, m.privacy, m.pure)
          method1.privacy = m.privacy
          method1.virtual = m.virtual
@@ -978,15 +967,6 @@ def derivate(input_list, class1, privacy, index):
 
       elif (privacy == 'protected'):
          
-         # if (m.privacy == 'private') and (conflicts != True):
-         #    continue
-
-         # elif (m.privacy == 'private'):
-         #    method1 = Method(m.name, m.mtype, m.parentcls, m.scope, m.privacy, m.pure)
-         #    method1.privacy = m.privacy
-         #    method1.arguments = m.arguments
-         #    class1.add_method(method1)
-         # else:
          method1 = Method(m.name, m.mtype, m.parentcls, m.scope, m.privacy, m.pure)
          method1.privacy = privacy
          method1.virtual = m.virtual
@@ -998,8 +978,6 @@ def derivate(input_list, class1, privacy, index):
 
       elif (privacy == 'private'):
         
-         # if (m.privacy == 'private') and (conflicts != True):
-         #    continue
          method1 = Method(m.name, m.mtype, m.parentcls, m.scope, m.privacy, m.pure)
          method1.privacy = privacy
          method1.virtual = m.virtual
@@ -1013,14 +991,6 @@ def derivate(input_list, class1, privacy, index):
    for attr in base_class.attributes:
       if (privacy == 'public'):
         
-         # if (attr.privacy == 'private') and (conflicts != True):
-         #    continue
-         # # elif (attr.privacy == 'private'):
-         # #    attr1 = Attribute(attr.name, attr.attype, attr.parentcls, attr.scope, attr.privacy)
-         # #    attr1.privacy = attr.privacy
-         # #    class1.add_attribute(attr1)
-         
-         # else:
          attr1 = Attribute(attr.name, attr.attype, attr.parentcls, attr.scope, attr.privacy)
          attr1.privacy = attr.privacy
          class1.add_attribute(attr1)
@@ -1029,15 +999,6 @@ def derivate(input_list, class1, privacy, index):
 
       elif (privacy == 'protected'):
         
-         # if (attr.privacy == 'private') and (conflicts != True):
-         #    continue
-
-         # elif (attr.privacy == 'private'):
-         #    attr1 = Attribute(attr.name, attr.attype, attr.parentcls, attr.scope, attr.privacy)
-         #    attr1.privacy = attr.privacy
-         #    class1.add_attribute(attr1)
-
-         # else:
          attr1 = Attribute(attr.name, attr.attype, attr.parentcls, attr.scope, attr.privacy)
          attr1.privacy = privacy
          class1.add_attribute(attr1)
@@ -1045,22 +1006,12 @@ def derivate(input_list, class1, privacy, index):
             attr_list.append(attr1)
 
       elif (privacy == 'private'):
-         # if (attr.privacy == 'private') and (conflicts != True):
-         #    continue
          
          attr1 = Attribute(attr.name, attr.attype, attr.parentcls, attr.scope, attr.privacy)
          attr1.privacy = privacy
          class1.add_attribute(attr1)
          if (attr.privacy == 'private'):
-            attr_list.append(attr1)
-
-
-   # print(class1.name)
-   # print(len(class1.attributes))
-   # for a in class1.attributes:
-   #    print(a.name)  
-            
-
+            attr_list.append(attr1)  
 
 def inheritance_privacy(input_list, class1, index):
    privacy = 'private'
@@ -1083,6 +1034,42 @@ def inheritance_privacy(input_list, class1, index):
 def declaration(class1, input_list, scope, privacy, virtual, index):
    pureness = 'no'
    if (test_type(input_list[index]) != False):
+      if (input_list[index+1] == '('): 
+         constructor = Method(input_list[index], 'void', class1, scope, privacy)
+         constructor.constOrDest = True
+         i = index + 2 
+         while (input_list[i] != ')'):
+            if (input_list[i] == 'void'):
+               i += 1
+               continue
+            if (test_type(input_list[i]) != False):
+               arg1 = Argument(input_list[i+1], input_list[i])
+               constructor.add_argument(arg1)
+               if (input_list[i+2] == ','):
+                  i = i + 3
+               elif (input_list[i+2] == ')'):
+                  i = i + 2
+                  break 
+               else:
+                  sys.stderr.write('Wrong input file formating!\n')
+                  sys.exit(4)
+
+         if (input_list[i+1] == '{'):
+            if (input_list[i+2] != '}'):
+               sys.stderr.write('Wrong input file formating!\n')
+               sys.exit(4)
+            class1.add_method(constructor)
+            if (input_list[i+3] == ';'):
+               return i+4
+            else:
+               return i+3
+         elif (input_list[i+1] == ';'):
+            class1.add_method(constructor)
+            return i+2
+         else:
+            sys.stderr.write('Wrong input file formating!\n')
+            sys.exit(4)         
+      
       if (input_list[index+2] == ';'):
          attr1 = Attribute(input_list[index+1], input_list[index], class1, scope, privacy)
          x = 0
@@ -1179,6 +1166,10 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
                   sys.stderr.write('Wrong input file formating!\n')
                   sys.exit(4)
 
+         elif (input_list[i+1] == ';'):
+            class1.add_method(method1)
+            return i+2
+
          elif (input_list[i+1] != '{'):
             sys.stderr.write('Wrong input file formating!\n')
             sys.exit(4)
@@ -1230,46 +1221,6 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
             sys.stderr.write('Wrong input file formating!\n')
             sys.exit(4)
          return index+5
-
-   elif (input_list[index] == class1.name):
-      if (input_list[index+1] != '('):
-         sys.stderr.write('Wrong input file formating!\n')
-         sys.exit(4)
-      constructor = Method(input_list[index], 'void', class1, scope, privacy)
-      constructor.constOrDest = True
-      i = index + 2 
-      while (input_list[i] != ')'):
-         if (input_list[i] == 'void'):
-            i += 1
-            continue
-
-         if (test_type(input_list[i]) != False):
-            arg1 = Argument(input_list[i+1], input_list[i])
-            constructor.add_argument(arg1)
-            if (input_list[i+2] == ','):
-               i = i + 3
-            elif (input_list[i+2] == ')'):
-               i = i + 2
-               break 
-            else:
-               sys.stderr.write('Wrong input file formating!\n')
-               sys.exit(4)
-
-      if (input_list[i+1] == '{'):
-         if (input_list[i+2] != '}'):
-            sys.stderr.write('Wrong input file formating!\n')
-            sys.exit(4)
-         class1.add_method(constructor)
-         if (input_list[i+3] == ';'):
-            return i+4
-         else:
-            return i+3
-      elif (input_list[i+1] == ';'):
-         class1.add_method(constructor)
-         return i+2
-      else:
-         sys.stderr.write('Wrong input file formating!\n')
-         sys.exit(4)
 
    elif (input_list[index] == '~'):
       if (input_list[index+1] != class1.name):
@@ -1469,9 +1420,6 @@ def body_of_class(class1, input_list, index):
       if(input_list[index+2] == '}'):
          return index+2
 
-      # privacy = 'protected'
-      # privacy_next = 'protected'
-
       if (input_list[index+2] == 'virtual'):
          virtual = 'yes'
          index = declaration(class1, input_list, scope, privacy, virtual, index+3)
@@ -1509,7 +1457,7 @@ def analysis(input_list):
    i = 0
    while (i < len(input_list)):
       if (input_list[i] != 'class'):
-         sys.stderr.write('Syntax error!\n')
+         sys.stderr.write('Wrong input file formating!\n')
          sys.exit(4)
 
       else:
@@ -1523,13 +1471,13 @@ def analysis(input_list):
                   index = inheritance_privacy(input_list, class1, index+1)
 
                else:
-                  sys.stderr.write('Syntax error!\n')
+                  sys.stderr.write('Wrong input file formating!\n')
                   sys.exit(4)
 
             i = index - 2
 
          elif (input_list[i+2] != '{'):
-            sys.stderr.write('Syntax error!\n')
+            sys.stderr.write('Wrong input file formating!\n')
             sys.exit(4)
 
          privacy_next = 'private'
@@ -1712,12 +1660,10 @@ def main():
    parser.add_argument('--pretty-xml', dest='k', nargs='*', action='store')
    parser.add_argument('--conflicts', dest='conflicts', action='store_true')
 
-
    try:
       parsed = parser.parse_args()
    except SystemExit:
       sys.exit(1)
-
 
    if (parsed.k == []):
       k = 4
@@ -1763,10 +1709,8 @@ def main():
    else:
       input_content = sys.stdin.read()
 
-
    output(stdout, outputfilename, k, parsering(input_content), classname)
 
-   #closing files
    if (stdin == False):
       inputfile.close()
 
