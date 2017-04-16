@@ -1,27 +1,33 @@
 #!/usr/bin/python
+
+#  Title: IPP Project 2, CLS (C++ Classes)
+#  Author: Ondrej Svoreň 
+#  Login: xsvore01
+
+#used libraries
 import sys, getopt, argparse
 
+#global variables
 details = False
 details_all = False
 conflicts = False
-classname = ''
-
 args = False
 private = False
 public = False
 protected = False
-privacy_next = 'private'
-
-meth_list = []
-attr_list = []
-mystr = 'none'
-
-k = 2
 stdout = True
+k = 2
+
+privacy_next = 'private'
+mystr = 'none'
 outputfile = ''
+classname = ''
 
 class_list = []
+meth_list = []
+attr_list = []
 
+#Classes definitions
 class Class(object):
    def __init__(self, name, kind = 'concrete', privacy = 'private'):
       super(Class, self).__init__()
@@ -55,6 +61,7 @@ class Class(object):
             sys.exit(21)
       self.root = True
 
+
 class Method(object):
    def __init__(self, name, mtype, parentcls, scope = 'instance', privacy = 'private', pure = 'no'):
       super(Method, self).__init__()
@@ -81,6 +88,7 @@ class Method(object):
    def change_pure(self, pure):
       self.pure = pure
 
+
 class Attribute(object):
    def __init__(self, name, attype, parentcls, scope = 'instance', privacy = 'private'):
       super(Attribute, self).__init__()
@@ -89,7 +97,8 @@ class Attribute(object):
       self.scope = scope
       self.privacy = privacy
       self.parentcls = parentcls
-        
+    
+
 class Argument(object):
    def __init__(self, name, argtype):
       super(Argument, self).__init__()
@@ -97,6 +106,7 @@ class Argument(object):
       self.argtype = argtype
 
 
+#function proceeds output in required formate in case of input argument "--details=classname" and takes "classname" as one of the function parameters
 def details_output(classname, methorattr, mthattr, privacy, n, k_string, stdout, outputfile):
    global private
    global public
@@ -270,7 +280,8 @@ def details_output(classname, methorattr, mthattr, privacy, n, k_string, stdout,
                print(k_string*n + '</attributes>')
             else:
                outputfile.write(k_string*n + '</attributes>\n')
-         
+
+#recursive function used in case without argument "--details", the output is inheritance tree
 def next(classname, k_string, n, class_list, stdout, outputfile):
    for j in range(len(class_list)): 
       if not class_list[j].parents:
@@ -291,7 +302,7 @@ def next(classname, k_string, n, class_list, stdout, outputfile):
                   outputfile.write(k_string*n + '</class>\n')
                break
 
-
+#function proceeds output in form of xml elements and calls another output functions depending on the input command line arguments
 def output(stdout, outputfilename, k, class_list, classname = ''):
 
    isdef = False
@@ -554,7 +565,8 @@ def output(stdout, outputfilename, k, class_list, classname = ''):
                outputfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
                outputfile.close()
 
-
+#function proceeds testing, if the input argument of the function (string) has approved data type
+#function proceeds also constructor and destruktor test
 def test_type(string):
    global class_list
    is_def = False
@@ -597,6 +609,7 @@ def test_type(string):
 
    return False
 
+#function detects conflicts in inheritance and in case of conflict proceeds required output
 def is_conflict(class1):
 
    global conflicts
@@ -924,7 +937,7 @@ def is_conflict(class1):
                   if not class1.methods:
                      return
 
-
+#function proceeds inheritance of attributes and methods depending on the privacy
 def derivate(input_list, class1, privacy, index):
    global class_list
    global conflicts
@@ -1013,6 +1026,7 @@ def derivate(input_list, class1, privacy, index):
          if (attr.privacy == 'private'):
             attr_list.append(attr1)  
 
+#function determinates privacy in case of inheritance and uses it as one of the arguments of function "derivate"
 def inheritance_privacy(input_list, class1, index):
    privacy = 'private'
    if (input_list[index] == 'public'):
@@ -1031,6 +1045,7 @@ def inheritance_privacy(input_list, class1, index):
       derivate(input_list, class1, privacy, index)
       return index+1
 
+#function proceeds declaration of methods and arguments, attributes, constructors and destructors in concrete class
 def declaration(class1, input_list, scope, privacy, virtual, index):
    pureness = 'no'
    if (test_type(input_list[index]) != False):
@@ -1265,8 +1280,10 @@ def declaration(class1, input_list, scope, privacy, virtual, index):
    
    return index
 
+#function proceeds choosing of function or attribute that is inbred from the base class and has to be used in the derived class
 def using(class1, input_list, index, privacy = 'private'):
    global class_list
+
    defined = False
    for clss in class_list:
       if (input_list[index] == clss.name):
@@ -1302,7 +1319,6 @@ def using(class1, input_list, index, privacy = 'private'):
             class1.attributes[x].privacy = privacy
          x += 1
 
-
    if (clss.methods):
       for m in clss.methods:
 
@@ -1311,7 +1327,6 @@ def using(class1, input_list, index, privacy = 'private'):
          elif (input_list[index+3] == m.name):
             clss = m.parentcls
             break
-
 
       x = 0
       length = len(class1.methods)
@@ -1324,14 +1339,13 @@ def using(class1, input_list, index, privacy = 'private'):
             class1.methods[x].privacy = privacy
          x += 1
 
-
    if (input_list[index+4] != ';'):
       sys.stderr.write('Wrong input file formating!\n')
       sys.exit(4)
 
-
    return index+5
 
+#function parses definition of the class, determinates privacy and scope of attributes and methods and virtualness of methods in the class and calls function "declaration"
 def body_of_class(class1, input_list, index):
 
    global class_list
@@ -1447,8 +1461,7 @@ def body_of_class(class1, input_list, index):
       index = declaration(class1, input_list, scope, privacy, virtual, index)
       return index
 
-   
-
+#function controls syntax, defines classes and controls defining of functions and attibutes
 def analysis(input_list):
    global class_list
    global conflicts
@@ -1495,6 +1508,7 @@ def analysis(input_list):
 
    return class_list
 
+#function binds strings from parser and creates data type, that matches one of the supported data type and returns it as one string
 def word_control(word):
 
    global mystr
@@ -1571,7 +1585,8 @@ def word_control(word):
       mystr = 'none'
       return word
 
-def parsering(input_content):
+#function parses input file or string from standard input to sequence of tokens represented by list 
+def input_parser(input_content):
    word = ''
    input_list = []
    types = ['A','B','C','D','bool','char','char16_t','char32_t','wchar_t','signed char','short int','int','long int','long long int','unsigned char','unsigned short int','unsigned int','unsigned long int','unsigned long long int','float','double','long double','void']
@@ -1639,6 +1654,7 @@ def parsering(input_content):
    class_list = analysis(input_list)
    return class_list
 
+#function parses command line arguments
 def main():
    global details_all
    global details
@@ -1709,7 +1725,7 @@ def main():
    else:
       input_content = sys.stdin.read()
 
-   output(stdout, outputfilename, k, parsering(input_content), classname)
+   output(stdout, outputfilename, k, input_parser(input_content), classname)
 
    if (stdin == False):
       inputfile.close()
