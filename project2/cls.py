@@ -572,24 +572,24 @@ def test_type(string):
    is_def = False
    types = ['A','B','C','D',
             'A *','B *','C *','D *',
-            'A &','B &','C &','D &',
-            'int', 'int *', 'int &',
-           'float', 'float *', 'float &', 
-           'double', 'double *', 'double &',
-           'long double', 'long double *', 'long double &', 'void', 'void *', 'void &',
-           'bool', 'bool *', 'bool &',
-           'char', 'char *', 'char &',
-           'char16_t', 'char16_t *', 'char16_t &', 'char32_t', 'char32_t *', 'char32_t &',
-           'wchar_t', 'wchar_t *', 'wchar_t &','signed char', 'signed char *', 'signed char &',
-           'short int', 'short int *', 'short int &', 'long int', 'long int *', 'long int &', 'long long int',
-           'long long int *', 'long long int &', 'unsigned char', 'unsigned char *', 'unsigned char &',
-           'unsigned short int', 'unsigned short int *', 'unsigned short int &', 'unsigned int', 'unsigned int *',
-           'unsigned int &', 'unsigned long int', 'unsigned long int *', 'unsigned long int &',
-           'unsigned long long int', 'unsigned long long int *', 'unsigned long long int &']
+            'A &amp;','B &amp;','C &amp;','D &amp;',
+            'int', 'int *', 'int &amp;',
+           'float', 'float *', 'float &amp;', 
+           'double', 'double *', 'double &amp;',
+           'long double', 'long double *', 'long double &amp;', 'void', 'void *', 'void &amp;',
+           'bool', 'bool *', 'bool &amp;',
+           'char', 'char *', 'char &amp;',
+           'char16_t', 'char16_t *', 'char16_t &amp;', 'char32_t', 'char32_t *', 'char32_t &amp;',
+           'wchar_t', 'wchar_t *', 'wchar_t &amp;','signed char', 'signed char *', 'signed char &amp;',
+           'short int', 'short int *', 'short int &amp;', 'long int', 'long int *', 'long int &amp;', 'long long int',
+           'long long int *', 'long long int &amp;', 'unsigned char', 'unsigned char *', 'unsigned char &amp;',
+           'unsigned short int', 'unsigned short int *', 'unsigned short int &amp;', 'unsigned int', 'unsigned int *',
+           'unsigned int &amp;', 'unsigned long int', 'unsigned long int *', 'unsigned long int &amp;',
+           'unsigned long long int', 'unsigned long long int *', 'unsigned long long int &amp;','short','short *','short &amp;','long','long *','long &amp;','unsigned short','unsigned short *','unsigned short &amp;','unsigned','unsigned *','unsigned &amp;','unsigned long','unsigned long *','unsigned long &amp;','unsigned long long','unsigned long long *','unsigned long long &amp;']
 
    classes = ['A','B','C','D',
             'A *','B *','C *','D *',
-            'A &','B &','C &','D &']
+            'A &amp;','B &amp;','C &amp;','D &amp;']
 
 
    for classname in classes:
@@ -785,9 +785,9 @@ def is_conflict(class1):
                   n += 1 
                   
                   if (stdout == True):
-                     print(k_string*n + '<method name="' + class1.methods[i].name + '" type="' + class1.methods[i].mtype + '" scope="' + class1.methods[i].scope + '"/>')
+                     print(k_string*n + '<method name="' + class1.methods[i].name + '" type="' + class1.methods[i].mtype + '" scope="' + class1.methods[i].scope + '">')
                   else:
-                     outputfile.write(k_string*n + '<method name="' + class1.methods[i].name + '" type="' + class1.methods[i].mtype + '" scope="' + class1.methods[i].scope + '"/>\n')
+                     outputfile.write(k_string*n + '<method name="' + class1.methods[i].name + '" type="' + class1.methods[i].mtype + '" scope="' + class1.methods[i].scope + '">\n')
 
                   if class1.methods[i].arguments:
                      n += 1
@@ -868,9 +868,9 @@ def is_conflict(class1):
                   n += 1 
                   
                   if (stdout == True):
-                     print(k_string*n + '<method name="' + class1.methods[j].name + '" type="' + class1.methods[i].mtype + '" scope="' + class1.methods[i].scope + '"/>')
+                     print(k_string*n + '<method name="' + class1.methods[j].name + '" type="' + class1.methods[i].mtype + '" scope="' + class1.methods[i].scope + '">')
                   else:
-                     outputfile.write(k_string*n + '<method name="' + class1.methods[j].name + '" type="' + class1.methods[i].mtype + '" scope="' + class1.methods[i].scope + '"/>\n')
+                     outputfile.write(k_string*n + '<method name="' + class1.methods[j].name + '" type="' + class1.methods[i].mtype + '" scope="' + class1.methods[i].scope + '">\n')
 
                   if class1.methods[j].arguments:
                      n += 1
@@ -1019,7 +1019,6 @@ def derivate(input_list, class1, privacy, index):
             attr_list.append(attr1)
 
       elif (privacy == 'private'):
-         
          attr1 = Attribute(attr.name, attr.attype, attr.parentcls, attr.scope, attr.privacy)
          attr1.privacy = privacy
          class1.add_attribute(attr1)
@@ -1448,6 +1447,8 @@ def body_of_class(class1, input_list, index):
 
    elif (input_list[index] == 'virtual'):
       virtual = 'yes'
+      if (privacy == 'private'):
+         privacy = privacy_next
       index = declaration(class1, input_list, scope, privacy, virtual, index+1)
       return index
 
@@ -1582,6 +1583,8 @@ def word_control(word):
          sys.stderr.write('Incompatible type!\n')
          sys.exit(4)
    else:
+      if (mystr == 'short') or (mystr == 'long') or (mystr == 'long long') or (mystr == 'unsigned short') or (mystr == 'unsigned') or (mystr == 'unsigned long') or (mystr == 'unsigned long long'):
+         word = mystr
       mystr = 'none'
       return word
 
@@ -1589,17 +1592,28 @@ def word_control(word):
 def input_parser(input_content):
    word = ''
    input_list = []
-   types = ['A','B','C','D','bool','char','char16_t','char32_t','wchar_t','signed char','short int','int','long int','long long int','unsigned char','unsigned short int','unsigned int','unsigned long int','unsigned long long int','float','double','long double','void']
-   
+   types = ['A','B','C','D','int', 'int *', 'int &amp;',
+           'float', 'float *', 'float &amp;', 
+           'double', 'double *', 'double &amp;',
+           'long double', 'long double *', 'long double &amp;', 'void', 'void *', 'void &amp;',
+           'bool', 'bool *', 'bool &amp;',
+           'char', 'char *', 'char &amp;',
+           'char16_t', 'char16_t *', 'char16_t &amp;', 'char32_t', 'char32_t *', 'char32_t &amp;',
+           'wchar_t', 'wchar_t *', 'wchar_t &amp;','signed char', 'signed char *', 'signed char &amp;',
+           'short int', 'short int *', 'short int &amp;', 'long int', 'long int *', 'long int &amp;', 'long long int',
+           'long long int *', 'long long int &amp;', 'unsigned char', 'unsigned char *', 'unsigned char &amp;',
+           'unsigned short int', 'unsigned short int *', 'unsigned short int &amp;', 'unsigned int', 'unsigned int *',
+           'unsigned int &amp;', 'unsigned long int', 'unsigned long int *', 'unsigned long int &amp;',
+           'unsigned long long int', 'unsigned long long int *', 'unsigned long long int &amp;','short','short *','short &amp;','long','long *','long &amp;','unsigned short','unsigned short *','unsigned short &amp;','unsigned','unsigned *','unsigned &amp;','unsigned long','unsigned long *','unsigned long &amp;','unsigned long long','unsigned long long *','unsigned long long &amp;']
+
    for char in input_content:
       if ((char == '\n') or (char == ' ')) and (word != ''):
          word = word_control(word)
          if (word != 'next'):
             input_list.append(word)
-         
          word = ''
          continue
-      elif ((char == "(") or (char == ")")) and (word != ''):
+      elif ((char == '(') or (char == ')')) and (word != ''):
          word = word_control(word)
          if (word != 'next'):
             input_list.append(word)
@@ -1626,8 +1640,14 @@ def input_parser(input_content):
             input_list.append(char)
             word = ''
          else:   
-            if((char == ':') or (char == '*') or (char == '&'))  and (word == ''):
+            if((char == ':') or (char == '*') or (char == '&')) and (word == ''):
+               if (char == '*'):
+                  word = word_control(char)
+                  if (word != '*'):
+                     input_list.append(word)
+               word = ''
                input_list.append(char)
+
                continue
             word += char
 
@@ -1644,12 +1664,24 @@ def input_parser(input_content):
                length -= 1
 
             elif (input_list[x+1] == '&'):
-               word = input_list[x] + ' &'
+               word = input_list[x] + ' &amp;'
                input_list.insert(x, word)
                del input_list[x+2]
                del input_list[x+1]
                length -= 1
          x += 1
+
+   for t in types:
+      x = 0
+      length = len(input_list)
+      while(x < length): 
+         if (t == input_list[x]):
+            if (input_list[x+1] == ')') or (input_list[x+1] == ','):
+               input_list.insert(x+1, '')
+               length += 1
+         x += 1
+
+   print(input_list)
 
    class_list = analysis(input_list)
    return class_list

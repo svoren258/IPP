@@ -8,7 +8,7 @@
     <member name="x">
       <class name="A">
         <private>
-          <method name="x" type="int" scope="instance"/>
+          <method name="x" type="int" scope="instance">
             <arguments>
               <argument name="arg" type="int"/>
             </arguments>

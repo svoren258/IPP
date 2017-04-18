@@ -1,8 +1,8 @@
 class A {virtual int f(void) =0;};
 class B : A {
 public:
-	static int var;
-	static int f(void){}
+    static int var;
+    static int f(void){}
 };
 class C {
 };
