@@ -1698,8 +1698,11 @@ def main():
    
    stdin = True
    
-   parser = argparse.ArgumentParser()
-   
+   # parser = argparse.ArgumentParser()
+
+   parser = argparse.ArgumentParser(add_help=False)
+
+   parser.add_argument('-h', '--help', dest='showhelp', action='store_true')
    parser.add_argument('-i', '--input=', dest='input')
    parser.add_argument('-o', '--output=', dest='output')
    parser.add_argument('--details', action='store', nargs='*', dest='details')
@@ -1710,6 +1713,10 @@ def main():
       parsed = parser.parse_args()
    except SystemExit:
       sys.exit(1)
+
+   if(parsed.showhelp):
+      print(parser.print_help())
+      sys.exit(0)
 
    if (parsed.k == []):
       k = 4
