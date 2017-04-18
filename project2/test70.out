@@ -2,6 +2,14 @@
 <class name="A" kind="concrete">
   <private>
     <methods>
+      <method name="f" type="int" scope="instance">
+        <arguments>
+          <argument name="" type="int"/>
+          <argument name="f" type="int"/>
+          <argument name="" type="char"/>
+          <argument name="" type="int"/>
+        </arguments>
+      </method>
       <method name="f1" type="int" scope="instance">
         <arguments>
           <argument name="" type="unsigned long *"/>
@@ -9,14 +17,6 @@
       </method>
       <method name="f" type="int" scope="instance">
         <arguments>
-          <argument name="" type="int"/>
-        </arguments>
-      </method>
-      <method name="f" type="int" scope="instance">
-        <arguments>
-          <argument name="" type="int"/>
-          <argument name="f" type="int"/>
-          <argument name="" type="char"/>
           <argument name="" type="int"/>
         </arguments>
       </method>

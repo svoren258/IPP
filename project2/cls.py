@@ -1592,10 +1592,10 @@ def word_control(word):
 def input_parser(input_content):
    word = ''
    input_list = []
-   types = ['A','B','C','D','int', 'int *', 'int &amp;',
+   types = ['int', 'int *', 'int &amp;',
            'float', 'float *', 'float &amp;', 
            'double', 'double *', 'double &amp;',
-           'long double', 'long double *', 'long double &amp;', 'void', 'void *', 'void &amp;',
+           'long double', 'long double *', 'long double &amp;',
            'bool', 'bool *', 'bool &amp;',
            'char', 'char *', 'char &amp;',
            'char16_t', 'char16_t *', 'char16_t &amp;', 'char32_t', 'char32_t *', 'char32_t &amp;',
@@ -1655,7 +1655,7 @@ def input_parser(input_content):
       x = 0
       length = len(input_list)
       while(x < length): 
-         if (t == input_list[x]):
+         if (t == input_list[x]) or (input_list[x] == 'A') or (input_list[x] == 'B') or (input_list[x] == 'C') or (input_list[x] == 'D') or (input_list[x] == 'void'):
             if (input_list[x+1] == '*'):
                word = input_list[x] + ' *'
                input_list.insert(x, word)
@@ -1680,8 +1680,6 @@ def input_parser(input_content):
                input_list.insert(x+1, '')
                length += 1
          x += 1
-
-   print(input_list)
 
    class_list = analysis(input_list)
    return class_list
